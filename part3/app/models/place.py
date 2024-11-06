@@ -1,8 +1,29 @@
+from app.persistence import Base
 import uuid
+import re
 from datetime import datetime
-from app.models.user import User
+from flask_bcrypt import Bcrypt
+from sqlalchemy import Column, String, DateTime, Float, ForeignKey
+from sqlalchemy.orm import relationship
 
-class Place:
+bcrypt = Bcrypt()
+
+class Place(Base):
+    """ Place class"""
+    __tablename__ = 'users'
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at = Column(DateTime, nullable=False, default=datetime.now())
+    updated_at = Column(DateTime, nullable=False, default=datetime.now())
+    _title = Column("title", String(50), nullable=False)
+    _description = Column("description", String(500), nullable=False)
+    _price = Column("price", Float, nullable=False)
+    _latitude = Column("latitide", Float, nullable=False)
+    _longitude = Column("longitude", Float, default=False)
+    _ownwer = Column("owner", String(36), ForeignKey('users.id'), nullable=False)
+    # reviews_r = relationship("Review", back_populates="user_r", cascade="delete, delete-orphan")
+    # properties_r = relationship("Place", back_populates="owner_r", cascade="delete, delete-orphan")
+
     def __init__(self, title, description, price, latitude, longitude, owner):
         if title is None or description is None or price is None or latitude is None or longitude is None or owner is None:
             raise ValueError("Required attributes not specified!")
