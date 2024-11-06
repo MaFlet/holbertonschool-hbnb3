@@ -29,7 +29,7 @@ class User(Base):
     # properties_r = relationship("Place", back_populates="owner_r", cascade="delete, delete-orphan")
 
 
-    def __init__(self, first_name, last_name, email, is_admin = False):
+    def __init__(self, first_name, last_name, email, password=None, is_admin = False):
         # NOTE: Attributes that don't already exist will be
         # created when called in the constructor
 
@@ -102,6 +102,19 @@ class User(Base):
                 raise ValueError("Email already exists!")
 
             raise ValueError("Invalid email format!")
+
+    @property
+    def password(self):
+        """Getter for prop password"""
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        """Setter for prop password"""
+        # The value passed in here is already hashed.
+        # TODO: Modify hash_password to give a return value so we 
+        # could do the assignment here instead of in the constructor?
+        self._password = value
 
     @property
     def is_admin(self):
