@@ -8,9 +8,9 @@ from app.services.repositories.user_repository import UserRepository
 class HBnBFacade:
     def __init__(self):
         self.user_repo = UserRepository()
-        self.amenity_repo = SQLAlchemyRepository()
-        self.place_repo = SQLAlchemyRepository()
-        self.review_repo = SQLAlchemyRepository()
+        #self.amenity_repo = SQLAlchemyRepository()
+        #self.place_repo = SQLAlchemyRepository()
+        #self.review_repo = SQLAlchemyRepository()
 
     # In case anyone is curious about the **
     # https://www.geeksforgeeks.org/what-does-the-double-star-operator-mean-in-python/
