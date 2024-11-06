@@ -10,7 +10,7 @@ bcrypt = Bcrypt()
 
 class Place(Base):
     """ Place class"""
-    __tablename__ = 'users'
+    __tablename__ = 'place'
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     created_at = Column(DateTime, nullable=False, default=datetime.now())
@@ -20,7 +20,7 @@ class Place(Base):
     _price = Column("price", Float, nullable=False)
     _latitude = Column("latitide", Float, nullable=False)
     _longitude = Column("longitude", Float, default=False)
-    _ownwer = Column("owner", String(36), ForeignKey('users.id'), nullable=False)
+    _ownwer_id = Column("owner_id", String(36), ForeignKey('users.id'), nullable=False)
     # reviews_r = relationship("Review", back_populates="user_r", cascade="delete, delete-orphan")
     # properties_r = relationship("Place", back_populates="owner_r", cascade="delete, delete-orphan")
 
