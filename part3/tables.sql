@@ -26,7 +26,7 @@ CREATE TABLE `places` (
   `price` float NOT NULL,
   `latitude` float NOT NULL,
   `longitude` float NOT NULL,
-  `owner_id` varchar(60) NOT NULL,
+  `owner_id` varchar(36) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `owner_id` (`owner_id`),
   CONSTRAINT `places_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`)

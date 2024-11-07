@@ -1,12 +1,13 @@
 from app.models.place import Place
 from app.persistence.repository import SQLAlchemyRepository
+from app.persistence import db_session
 
 class PlaceRepository(SQLAlchemyRepository):
     def __init__(self):
         super().__init__(Place)
 
     def get_by_owner(self, owner_id):
-        return self.get_by_attribute("_owner_id", owner_id)
+        return db_session.query(Place).filter(Place._owner_id == owner_id).all()
     
     #def get_with_amenities(self, place_id):
         #place = self.get(place_id)
@@ -14,14 +15,33 @@ class PlaceRepository(SQLAlchemyRepository):
             #_ = place.amenities
         #return place
 
-    #def update(self, place_id, data):
-        #place = self.get(place_id)
-        #if place:
-            #for key, value in data.items():
-                #if hasattr(place, key):
-                    #setattr(place, key, value)
-                #self.session.commit()
-            #return place
+    def update(self, place_id, data):
+        place = self.get(place_id)
+        if place:
+            try:
+                for key, value in data.items():
+                    if key == 'title':
+                        place.title = value
+                    elif key == 'description':
+                        place.description = value
+                    elif key == 'price':
+                        place.price = value
+                    elif key == 'latitude':
+                        place.latitude = value
+                    elif key == 'longitude':
+                        place.longitude = value
+                    elif key == 'owner_id':
+                        place.owner_id = value
+                    else:
+                        if hasattr(place, key):
+                            setattr(place, key, value)
+                    db_session.commit()
+                    db_session.refresh(place)
+                    return place
+            except Exception as e:
+                db_session.rollback()
+                raise ValueError(f"Error updating place: {str(e)}")
+            return None
  
 # Use these CURL commands for testing
 #curl -X POST "http://127.0.0.1:5000/api/v1/users/" -H "Content-Type: application/json" -d '{"first_name": "John", "last_name": "Doe", "email": "john.doe@example.com", "password": "password123"}'

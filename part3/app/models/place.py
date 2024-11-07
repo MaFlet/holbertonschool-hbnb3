@@ -1,30 +1,36 @@
 from app.persistence import Base
+from app.models.user import User
 import uuid
-import re
 from datetime import datetime
 from flask_bcrypt import Bcrypt
-from sqlalchemy import Column, String, DateTime, Float, ForeignKey
+from sqlalchemy import Column, String, Float, DateTime, Float, ForeignKey, Text, Table
 from sqlalchemy.orm import relationship
 
 bcrypt = Bcrypt()
 
+place_amenity = Table('place_amenity', Base.metadata,
+    Column('place_id', String(60), ForeignKey('places.id'), primary_key=True),
+    Column('amenity_id', String(60), ForeignKey('amenities.id'), primary_key=True)
+)
+
 class Place(Base):
     """ Place class"""
-    __tablename__ = 'place'
+    __tablename__ = 'places'
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(String(60), primary_key=True, default=lambda: str(uuid.uuid4()))
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     updated_at = Column(DateTime, nullable=False, default=datetime.now())
-    _title = Column("title", String(50), nullable=False)
-    _description = Column("description", String(500), nullable=False)
+    _title = Column("title", String(100), nullable=False)
+    _description = Column("description", Text, nullable=False)
     _price = Column("price", Float, nullable=False)
-    _latitude = Column("latitide", Float, nullable=False)
+    _latitude = Column("latitude", Float, nullable=False)
     _longitude = Column("longitude", Float, default=False)
-    _ownwer_id = Column("owner_id", String(36), ForeignKey('users.id'), nullable=False)
+    _owner_id = Column("owner_id", String(60), ForeignKey('users.id'), nullable=False)
+    owner_r = relationship("User", back_populates="places_r")
     # reviews_r = relationship("Review", back_populates="user_r", cascade="delete, delete-orphan")
     # properties_r = relationship("Place", back_populates="owner_r", cascade="delete, delete-orphan")
 
-    def __init__(self, title, description, price, latitude, longitude, owner):
+    def __init__(self, title, description, price, latitude, longitude, owner_id):
         if title is None or description is None or price is None or latitude is None or longitude is None or owner is None:
             raise ValueError("Required attributes not specified!")
 
@@ -36,7 +42,7 @@ class Place(Base):
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self.owner = owner
+        self._owner_id = owner_id
         self.reviews = []  # relationship - List to store related reviews
         self.amenities = []  # relationship - List to store related amenities
 
@@ -50,11 +56,8 @@ class Place(Base):
     def title(self, value):
         """Setter for prop title"""
         # ensure that the value is up to 100 alphabets only after removing excess white-space
-        is_valid_title = 0 < len(value.strip()) <= 100
-        if is_valid_title:
-            self._title = value.strip()
-        else:
-            raise ValueError("Invalid title length!")
+        if not value or not isinstance(value, str) or not (0 < len(value.strip()) <= 100):
+            raise ValueError("Title should be 100 characters long")
 
     @property
     def description(self):
@@ -65,6 +68,8 @@ class Place(Base):
     def description(self, value):
         """Setter for prop description"""
         # Can't think of any special checks to perform here tbh
+        if not value or not isinstance(value, str):
+            raise ValueError("Description should be not empty")
         self._description = value
 
     @property
@@ -75,9 +80,10 @@ class Place(Base):
     @price.setter
     def price(self, value):
         """Setter for prop price"""
-        if isinstance(value, float) and value > 0.0:
+        if isinstance(value, (float, int)) and value <= 0:
+            raise ValueError("Invalid value specified for price")
             self._price = value
-        else:
+   
             raise ValueError("Invalid value specified for price")
 
     @property
@@ -88,10 +94,9 @@ class Place(Base):
     @latitude.setter
     def latitude(self, value):
         """Setter for prop latitude"""
-        if isinstance(value, float) and -90.0 <= value <= 90.0:
-            self._latitude = value
-        else:
+        if isinstance(value, (float, int)) or not -90.0 <= float(value) <= 90.0:
             raise ValueError("Invalid value specified for Latitude")
+        self._latitude = float(value)
 
     @property
     def longitude(self):
@@ -101,10 +106,9 @@ class Place(Base):
     @longitude.setter
     def longitude(self, value):
         """Setter for prop longitude"""
-        if isinstance(value, float) and -180.0 <= value <= 180.0:
-            self._longitude = value
-        else:
+        if isinstance(value, (float, int)) or not -180.0 <= float(value) <= 180.0:
             raise ValueError("Invalid value specified for Longitude")
+        self._longitude = float(value)
 
     @property
     def owner(self):
