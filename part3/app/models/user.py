@@ -7,6 +7,7 @@ from datetime import datetime
 from flask_bcrypt import Bcrypt
 from sqlalchemy import Column, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
+from app.persistence import db_session
 
 bcrypt = Bcrypt()
 
@@ -48,6 +49,20 @@ class User(Base):
          # The method will call the setter
         self.hash_password(password)
 
+        existing_user = db_session.query(User).filter(User._email == email.strip()).first()
+        if existing_user:
+            raise ValueError("Email already exists")
+        
+        if self._validate_email(email):
+            self._email = email
+        else:
+            raise ValueError("Invalid email format")
+        
+    def _validate_email(self, email):
+        if not email or not isinstance(email, str):
+            return False
+        return bool(re.match("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$", email.strip()))
+
     # --- Getters and Setters ---
     # Setters are actually called when values are assigned in the constructor!
 
@@ -60,9 +75,8 @@ class User(Base):
     def first_name(self, value):
         """Setter for prop first_name"""
         # ensure that the value is up to 50 alphabets only after removing excess white-space
-        is_valid_name = 0 < len(value.strip()) <= 50
-        if is_valid_name:
-            self._first_name = value.strip()
+        if isinstance(value, str) and 0 < len(value) <= 50:
+            self._first_name = value
         else:
             raise ValueError("Invalid first_name length!")
 
@@ -75,9 +89,8 @@ class User(Base):
     def last_name(self, value):
         """Setter for prop last_name"""
         # ensure that the value is up to 50 alphabets only after removing excess white-space
-        is_valid_name = 0 < len(value.strip()) <= 50
-        if is_valid_name:
-            self._last_name = value.strip()
+        if isinstance(value, str) and 0 < len(value) <= 50:
+            self._last_name = value
         else:
             raise ValueError("Invalid last_name length!")
 
@@ -90,18 +103,18 @@ class User(Base):
     def email(self, value):
         """Setter for prop last_name"""
         # calls the method in the facade object
-        from app.services import facade
+        #from app.services import facade
 
         # add a simple regex check for email format. Nothing too fancy.
-        is_valid_email = len(value.strip()) > 0 and re.search("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$", value)
-        email_exists = facade.get_user_by_email(value.strip())
-        if is_valid_email and not email_exists:
-            self._email = value
-        else:
-            if email_exists:
-                raise ValueError("Email already exists!")
-
-            raise ValueError("Invalid email format!")
+        if not value:
+            raise ValueError("Email cannot be empty")
+        if not self._validate_email(value):
+            raise ValueError("Invalid email format")
+        if value.strip() != getattr(self, '_email', None):
+            existing_user = db_session.query(User).filter(User._email == value.strip()).first()
+            if existing_user:
+                raise ValueError("Email already exists")
+            self._email = value.strip()
 
     @property
     def password(self):

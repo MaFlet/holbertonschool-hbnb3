@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 # from app.services.facade import HBnBFacade
-import app.services import facade
+from app.services.facade import facade
 
 api = Namespace('users', description='User operations')
 
@@ -11,7 +11,7 @@ user_model = api.model('User', {
     'email': fields.String(required=True, description='Email of the user')
 })
 
-
+# facade = HBnBFacade()
 
 @api.route('/')
 class UserList(Resource):
@@ -32,7 +32,7 @@ class UserList(Resource):
             return {'error': 'Email already registered'}, 400
 
         # Validate input data
-        if not all([user_data.get('first_name'), user_data.get('last_name'), user_data.get('email')]):
+        if not all([user_data.get('first_name'), user_data.get('last_name'), user_data.get('email'), user_data.get('password')]):
             return {'error': 'Invalid input data'}, 400
 
         # the try catch is here in case setter validation fails
