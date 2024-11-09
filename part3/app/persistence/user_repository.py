@@ -52,7 +52,7 @@ class UserRepository(SQLAlchemyRepository):
             except Exception as e:
                 db_session.rollback()
                 raise ValueError(f"Error updating user: {str(e)}")
-            return None
+        return None
     
 # Use these CURL commands for testing
 #curl -X POST "http://127.0.0.1:5000/api/v1/users/" -H "Content-Type: application/json" -d '{"first_name": "Jane", "last_name": "Martin", "email": "jane.martine@example.com", "password": "securepassword123"}'

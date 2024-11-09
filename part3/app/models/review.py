@@ -1,7 +1,19 @@
+from app.persistence import Base
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text
+from sqlalchemy.orm import relationship
 import uuid
 from datetime import datetime
 
-class Review:
+class Review(Base):
+    """Review model"""
+    __tablename__ = 'reviews'
+
+    id = Column(String(60), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at = Column(DateTime, nullable=False, default=datetime.now())
+    updated_at = Column(DateTime, nullable=False, default=datetime.now())
+    _text = Column("text", Text, nullable=False)
+    _rating = Column("rating", Integer, nullable=False)
+    
     def __init__(self, text, rating, place_id, user_id):
         if text is None or rating is None or place_id is None or user_id is None:
             raise ValueError("Required attributes not specified!")
