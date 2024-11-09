@@ -25,26 +25,28 @@ class Place(Base):
     _price = Column("price", Float, nullable=False)
     _latitude = Column("latitude", Float, nullable=False)
     _longitude = Column("longitude", Float, default=False)
-    _owner_id = Column("owner_id", String(60), ForeignKey('users.id'), nullable=False)
+    _owner_id = Column("owner_id", String(36), ForeignKey('users.id'), nullable=False)
     owner_r = relationship("User", back_populates="places_r")
-    # reviews_r = relationship("Review", back_populates="user_r", cascade="delete, delete-orphan")
-    # properties_r = relationship("Place", back_populates="owner_r", cascade="delete, delete-orphan")
+    reviews_r = relationship("Review", back_populates="user_r", cascade="delete, delete-orphan")
+    properties_r = relationship("Place", back_populates="owner_r", cascade="delete, delete-orphan")
+    amenities = relationship("Amenity", secondary=place_amenity, back_populates="places")
 
     def __init__(self, title, description, price, latitude, longitude, owner_id):
-        if title is None or description is None or price is None or latitude is None or longitude is None or owner is None:
-            raise ValueError("Required attributes not specified!")
+            if not all([ptitle, description, price is not None,
+                       latitude is not None, longitude is not None, owner_id]):
+                raise ValueError("Required attributes not specified!")
 
-        self.id = str(uuid.uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-        self.title = title
-        self.description = description
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self._owner_id = owner_id
-        self.reviews = []  # relationship - List to store related reviews
-        self.amenities = []  # relationship - List to store related amenities
+            self.id = str(uuid.uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+            self.title = title
+            self.description = description
+            self.price = price
+            self.latitude = latitude
+            self.longitude = longitude
+            self._owner_id = owner_id
+            self.reviews = []  # relationship - List to store related reviews
+            self.amenities = []  # relationship - List to store related amenities
 
     # --- Getters and Setters ---
     @property
@@ -58,6 +60,7 @@ class Place(Base):
         # ensure that the value is up to 100 alphabets only after removing excess white-space
         if not value or not isinstance(value, str) or not (0 < len(value.strip()) <= 100):
             raise ValueError("Title should be 100 characters long")
+        self._title = value.strip()
 
     @property
     def description(self):
@@ -70,7 +73,7 @@ class Place(Base):
         # Can't think of any special checks to perform here tbh
         if not value or not isinstance(value, str):
             raise ValueError("Description should be not empty")
-        self._description = value
+        self._description = value.strip()
 
     @property
     def price(self):
@@ -80,11 +83,13 @@ class Place(Base):
     @price.setter
     def price(self, value):
         """Setter for prop price"""
-        if isinstance(value, (float, int)) and value <= 0:
-            raise ValueError("Invalid value specified for price")
-            self._price = value
-   
-            raise ValueError("Invalid value specified for price")
+        try:
+            float_value = float(value)
+            if float_value <= 0:
+                raise ValueError
+            self._price = float_value
+        except (TypeError, ValueError):
+            raise ValueError("Price must be a positive number")
 
     @property
     def latitude(self):

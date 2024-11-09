@@ -9,11 +9,11 @@ class PlaceRepository(SQLAlchemyRepository):
     def get_by_owner(self, owner_id):
         return db_session.query(Place).filter(Place._owner_id == owner_id).all()
     
-    #def get_with_amenities(self, place_id):
-        #place = self.get(place_id)
-        #if place:
-            #_ = place.amenities
-        #return place
+    def get_with_amenities(self, place_id):
+        place = self.get(place_id)
+        if place:
+            _ = place.amenities
+        return place
 
     def update(self, place_id, data):
         place = self.get(place_id)
