@@ -1,6 +1,7 @@
 from app.persistence.repository import SQLAlchemyRepository
 from app.persistence.user_repository import UserRepository
 from app.persistence.place_repository import PlaceRepository
+from app.persistence.amenity_repository import AmenityRepository
 from app.models.user import User
 from app.models.place import Place
 from app.models.amenity import Amenity
@@ -11,7 +12,7 @@ from app.models.review import Review
 class HBnBFacade:
     def __init__(self):
         self.user_repo = UserRepository()
-        #self.amenity_repo = SQLAlchemyRepository()
+        self.amenity_repo = AmenityRepository()
         self.place_repo = PlaceRepository()
        #self.review_repo = SQLAlchemyRepository()
 
@@ -60,22 +61,23 @@ __all__ = ['facade']
 
 # --- Amenities ---
     # Used during record insertion to prevent duplicate amenities
-    #def get_amenity_by_name(self, name):
-        #return self.amenity_repo.get_by_attribute('name', name)
+    
+    def get_amenity_by_name(self, name):
+        return self.amenity_repo.get_by_attribute('name', name)
 
-    # def create_amenity(self, amenity_data):
-    #     amenity = Amenity(**amenity_data)
-    #     self.amenity_repo.add(amenity)
-    #     return amenity
+    def create_amenity(self, amenity_data):
+        amenity = Amenity(**amenity_data)
+        self.amenity_repo.add(amenity)
+        return amenity
 
-    # def get_amenity(self, amenity_id):
-    #     return self.amenity_repo.get(amenity_id)
+    def get_amenity(self, amenity_id):
+        return self.amenity_repo.get(amenity_id)
 
-    # def get_all_amenities(self):
-    #     return self.amenity_repo.get_all()
+    def get_all_amenities(self):
+        return self.amenity_repo.get_all()
 
-    # def update_amenity(self, amenity_id, amenity_data):
-    #     self.amenity_repo.update(amenity_id, amenity_data)
+    def update_amenity(self, amenity_id, amenity_data):
+       self.amenity_repo.update(amenity_id, amenity_data)
 
 
     # # --- Reviews ---
