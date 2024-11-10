@@ -35,16 +35,31 @@ class PlaceRepository(SQLAlchemyRepository):
                     else:
                         if hasattr(place, key):
                             setattr(place, key, value)
-                    db_session.commit()
-                    db_session.refresh(place)
-                    return place
+                db_session.commit()
+                db_session.refresh(place)
+                return place
             except Exception as e:
                 db_session.rollback()
                 raise ValueError(f"Error updating place: {str(e)}")
-            return None
+        return None
+    
+    def delete(self, place_id):
+        """Delete a place"""
+        try:
+            place = self.get(place_id)
+            if place:
+                db_session.delete(place)
+                db_session.commit()
+                return True
+            return False
+        except Exception as e:
+            db_session.rollback()
+            raise ValueError(f"Error deleting place: {str(e)}")
+
  
 # Use these CURL commands for testing
 #curl -X POST "http://127.0.0.1:5000/api/v1/users/" -H "Content-Type: application/json" -d '{"first_name": "John", "last_name": "Doe", "email": "john.doe@example.com", "password": "password123"}'
 #curl -X POST "http://127.0.0.1:5000/api/v1/places/" -H "Content-Type: application/json" -d '{"title": "Cozy Apartment", "description": "A nice place to stay", "price": 100.0, "latitude": 37.7749, "longitude": -122.4194, "owner_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"}'
 #curl -X GET "http://127.0.0.1:5000/api/v1/places/<place_id>""
 # curl -X PUT "http://127.0.0.1:5000/api/v1/places/<place_id>" -H "Content-Type: application/json" -d '{"title": "Sunny Apartment", "description": "Great place to stay", "price": 200.0, "latitude": 37.7749, "longitude": -122.4194, "owner_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"}'
+# curl -X DELETE "http://127.0.0.1:5000/api/v1/places/<place_id" and confirm deletion with curl -X GET "http://127.0.0.1:5000/api/v1/places/<place_id>""

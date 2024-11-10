@@ -12,7 +12,7 @@ class Amenity(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     updated_at = Column(DateTime, nullable=False, default=datetime.now())
     _name = Column("name", String(50), nullable=False)
-    places = relationship("Place", secondary="place_amenity", back_populates="amenities")
+    places = relationship("Place", secondary="place_amenity", back_populates="amenities", cascade="all, delete")
 
     def __init__(self, name):
         if not name:
@@ -33,7 +33,7 @@ class Amenity(Base):
     def name(self, value):
         """Setter for prop name"""
         # ensure that the value is up to 50 characters after removing excess white-space
-        if not value or not isinstance(value, str) or not (0 < len(value.strip()) <= 50):
+        if not value or not isinstance(value, str) or len(value.strip()) <= 50:
             raise ValueError("Name must be up to 50 characters in length")
         self._name = value.strip()
 

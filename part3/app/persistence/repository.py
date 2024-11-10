@@ -73,14 +73,16 @@ class SQLAlchemyRepository(Repository):
         return None
 
     def delete(self, obj_id):
-        obj = self.get(obj_id)
-        if obj:
-            try:
+        try:
+            obj = db_session.query(self.model).get(obj_id)
+            if obj:
                 db_session.delete(obj)
                 db_session.commit()
-            except Exception as e:
-                db_session.rollback()
-                raise ValueError(f"Error deleting object: {str(e)}")
+                return True
+            return False
+        except Exception as e:
+            db_session.rollback()
+            raise ValueError(f"Error deleting object: {str(e)}")
 
     def get_by_attribute(self, attr_name, attr_value):
         return db_session.query(self.model).filter(getattr(self.model, attr_name) == attr_value).first()

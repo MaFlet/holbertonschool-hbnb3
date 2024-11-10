@@ -100,6 +100,12 @@ class HBnBFacade:
        if not owner:
            raise ValueError(f"User with id {owner_id} does not exist")
        return self.place_repo.get_by_owner(owner_id)
+    
+    def delete_place(self, place_id):
+        """Delete a place"""
+        place = self.get_place(place_id)
+        if place:
+            self.place_repo.delete(place_id)
 
 # --- Amenities ---
     # Used during record insertion to prevent duplicate amenities
@@ -120,6 +126,12 @@ class HBnBFacade:
 
     def update_amenity(self, amenity_id, amenity_data):
        self.amenity_repo.update(amenity_id, amenity_data)
+
+    def delete_amenity(self, amenity_id):
+        """Delete an amenity"""
+        amenity = self.get_amenity(amenity_id)
+        if amenity:
+            self.amenity_repo.delete(amenity)
 
 
     # # --- Reviews ---

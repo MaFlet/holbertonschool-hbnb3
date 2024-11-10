@@ -2,6 +2,7 @@ from app.models.amenity import Amenity
 from app.models.place import Place
 from app.persistence.repository import SQLAlchemyRepository
 from app.persistence import db_session
+from sqlalchemy import text 
 
 class AmenityRepository(SQLAlchemyRepository):
     def __init__(self):
@@ -80,3 +81,42 @@ class AmenityRepository(SQLAlchemyRepository):
             db_session.rollback()
             raise ValueError(f"Error removing amenity from place: {str(e)}")
         return False
+    
+    def delete(self, amenity_id):
+        """Delete an amenity"""
+        try:
+            amenity = db_session.query(Amenity).get(amenity_id)
+            if not amenity:
+                print(f"Amenity {amenity_id} not found")
+                return False
+            db_session.execute(
+                text('DELETE FROM place_amenity WHERE amenity_id = :aid'),
+                {'aid': amenity_id}
+            )
+            db_session.flush()
+            amenity.places = []
+            db_session.flush()
+
+            db_session.delete(amenity)
+            db_session.flush()
+
+            db_session.commit()
+            print(f"Successfully deleted amenity {amenity_id}")
+            return True
+        
+        except Exception as e:
+            db_session.rollback()
+            raise ValueError(f"Error deleting amenity: {str(e)}")
+
+
+# Use these CURL commands for testing
+#curl -X POST "http://127.0.0.1:5000/api/v1/amenities/" -H "Content-Type: application/json" -d '{"name": "Wifi"}'
+#curl -X GET "http://127.0.0.1:5000/api/v1/amenities/<amenity_id>""
+# curl -X PUT "http://127.0.0.1:5000/api/v1/amenities/<amenity_id>" -H "Content-Type: application/json" -d '{"name": " Air conditioning"}'
+# curl -X DELETE "http://127.0.0.1:5000/api/v1/amenities/<amenity_id>" and confirm deletion with curl -X GET "http://127.0.0.1:5000/api/v1/amenities/<amenity_id>""
+# if the DELETE curl command won't work, use these commands via MySQL:
+# mysql -u hbnb_evo_2 -p
+# USE hbnb_evo_2_db;
+# DELETE FROM place_amenity WHERE amenity_id = 'd8ac4ba0-ae01-4bcd-951a-268883470c28';
+# DELETE FROM amenities WHERE id = 'd8ac4ba0-ae01-4bcd-951a-268883470c28';
+# OR PLEASE REFRESH SERVER

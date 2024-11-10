@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 # from app.services.facade import HBnBFacade
-from app.services import facade
+from app.services.facade import facade
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -97,3 +97,17 @@ class AmenityResource(Resource):
             return {'message': 'Amenity updated successfully'}, 200
 
         return {'error': 'Amenity not found'}, 404
+    
+    @api.response(204, 'Amenity deleted successfully')
+    @api.response(404, 'Amenity not found')
+    @api.response(500, 'Server error')
+    def delete(self, amenity_id):
+        """Delete an amenity"""
+        amenity = facade.get_amenity(amenity_id)
+        if not amenity:
+            return {'error': 'Amenity not found'}, 404
+        try:
+            facade.delete_amenity(amenity_id)
+            return '', 204
+        except Exception as e:
+            return {'error': f"Error deleting amenity: {str(e)}"}, 500

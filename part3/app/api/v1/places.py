@@ -173,3 +173,16 @@ class PlaceResource(Resource):
         
         except ValueError as error:
                 return {'error': f"Valdation error: {str(error)}"}, 400
+        
+    @api.response(204, 'Place deleted successfully')
+    @api.response(404, 'Place not found')
+    def delete(self, place_id):
+        """Delete a place"""
+        place = facade.get_place(place_id)
+        if not place:
+            return {'error': 'Place not found'}, 404
+        try:
+            facade.delete_place(place_id)
+            return '', 204
+        except Exception as error:
+            return {'error': f"Error deleting place: {str(error)}"}, 500
