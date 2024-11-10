@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask import request
 # from app.services.facade import HBnBFacade
 from app.services.facade import facade
 
@@ -27,7 +28,7 @@ review_model = api.model('Review', {
 
 place_model = api.model('Place', {
     'title': fields.String(required=True, description='Title of the place'),
-    'description': fields.String(description='Description of the place'),
+    'description': fields.String(required=True, description='Description of the place'),
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
@@ -57,35 +58,28 @@ class PlaceList(Resource):
         wanted_keys_list = ['title', 'description', 'price', 'latitude', 'longitude', 'owner_id']
 
         # Check whether the keys are present
-        if not all(name in wanted_keys_list for name in places_data):
+        if not all(key in places_data for key in wanted_keys_list):
             return { 'error': "Invalid input data" }, 400
 
         # check that user exists
         user = facade.get_user(str(places_data.get('owner_id')))
         if not user:
             return { 'error': "Invalid input data - user does not exist" }, 400
-
-        # the try catch is here in case setter validation fails
-        new_place = None
         try:
-            # NOTE: We're storing a user object in the owner slot and getting rid of owner_id
-            places_data['owner'] = user
-            del places_data['owner_id']
-
             new_place = facade.create_place(places_data)
-        except ValueError as error:
-            return { 'error': "Setter validation failure: {}".format(error) }, 400
 
-        output = {
-            'id': str(new_place.id),
-            "title": new_place.title,
-            "description": new_place.description,
-            "price": new_place.price,
-            'latitude': new_place.latitude,
-            'longitude': new_place.longitude,
-            "owner_id": new_place.owner.id
-        }
-        return output, 201
+            output = {
+                'id': str(new_place.id),
+                "title": new_place.title,
+                "description": new_place.description,
+                "price": new_place.price,
+                'latitude': new_place.latitude,
+                'longitude': new_place.longitude,
+                "owner_id": new_place.owner_id
+            }
+            return output, 201
+        except ValueError as error:
+            return {'error': f"Validation error: {str(error)}"}, 400
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
@@ -114,7 +108,7 @@ class PlaceResource(Resource):
         if not place:
             return {'error': 'Place not found'}, 404
 
-        owner = place.owner
+        owner = place.owner_r
         if not owner:
             return {'error': 'Place owner not found'}, 404
 
@@ -129,6 +123,7 @@ class PlaceResource(Resource):
             'id': str(place.id),
             'title': place.title,
             'description': place.description,
+            'price': place.price,
             'latitude': place.latitude,
             'longitude': place.longitude,
             'owner': {
@@ -152,19 +147,29 @@ class PlaceResource(Resource):
 
         """Update a place's information"""
         place_data = api.payload
-        wanted_keys_list = ['title', 'description', 'price']
+        allowed_keys = ['title', 'description', 'price', 'latitude', 'longitude']
 
-        if len(place_data) != len(wanted_keys_list) or not all(key in wanted_keys_list for key in place_data):
-            return {'error': 'Invalid input data - required attributes missing'}, 400
-
-        # Check that place exists first before updating them
         place = facade.get_place(place_id)
-        if place:
-            try:
-                facade.update_place(place_id, place_data)
-            except ValueError as error:
-                return { 'error': "Setter validation failure: {}".format(error) }, 400
+        if not place:
+            return {'error': 'Place not found'}, 404
+        update_data = {k: v for k, v in place_data.items() if k in allowed_keys}
+        if not update_data:
+            return {'error': 'No valid fields to update'}, 400
+        
+        try:
+            facade.update_place(place_id, place_data)
+            updated_place = facade.get_place(place_id)
 
-            return {'message': 'Place updated successfully'}, 200
-
-        return {'error': 'Place not found'}, 404
+            output = {
+                'id': str(updated_place.id),
+                'title': updated_place.title,
+                'description': updated_place.description,
+                'price': updated_place.price,
+                'latitude': updated_place.latitude,
+                'longitude': updated_place.longitude,
+                'owner_id': updated_place.owner_id
+            }
+            return output, 200
+        
+        except ValueError as error:
+                return {'error': f"Valdation error: {str(error)}"}, 400

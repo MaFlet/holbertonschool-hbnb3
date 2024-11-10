@@ -3,7 +3,7 @@ from app.models.user import User
 import uuid
 from datetime import datetime
 from flask_bcrypt import Bcrypt
-from sqlalchemy import Column, String, Float, DateTime, Float, ForeignKey, Text, Table
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Text, Table
 from sqlalchemy.orm import relationship
 
 bcrypt = Bcrypt()
@@ -24,15 +24,14 @@ class Place(Base):
     _description = Column("description", Text, nullable=False)
     _price = Column("price", Float, nullable=False)
     _latitude = Column("latitude", Float, nullable=False)
-    _longitude = Column("longitude", Float, default=False)
-    _owner_id = Column("owner_id", String(36), ForeignKey('users.id'), nullable=False)
+    _longitude = Column("longitude", Float, nullable=False)
+    _owner_id = Column("owner_id", String(60), ForeignKey('users.id'), nullable=False)
     owner_r = relationship("User", back_populates="places_r")
-    reviews_r = relationship("Review", back_populates="user_r", cascade="delete, delete-orphan")
-    properties_r = relationship("Place", back_populates="owner_r", cascade="delete, delete-orphan")
+    reviews_r = relationship("Review", back_populates="place_r", cascade="all, delete-orphan")
     amenities = relationship("Amenity", secondary=place_amenity, back_populates="places")
 
     def __init__(self, title, description, price, latitude, longitude, owner_id):
-            if not all([ptitle, description, price is not None,
+            if not all([title, description, price is not None,
                        latitude is not None, longitude is not None, owner_id]):
                 raise ValueError("Required attributes not specified!")
 
@@ -45,8 +44,6 @@ class Place(Base):
             self.latitude = latitude
             self.longitude = longitude
             self._owner_id = owner_id
-            self.reviews = []  # relationship - List to store related reviews
-            self.amenities = []  # relationship - List to store related amenities
 
     # --- Getters and Setters ---
     @property
@@ -99,9 +96,13 @@ class Place(Base):
     @latitude.setter
     def latitude(self, value):
         """Setter for prop latitude"""
-        if isinstance(value, (float, int)) or not -90.0 <= float(value) <= 90.0:
+        try:
+            float_value = float(value)
+            if not -90.0 <= float_value <= 90.0:
+                raise ValueError
+            self._latitude = float_value
+        except (TypeError, ValueError):
             raise ValueError("Invalid value specified for Latitude")
-        self._latitude = float(value)
 
     @property
     def longitude(self):
@@ -111,37 +112,53 @@ class Place(Base):
     @longitude.setter
     def longitude(self, value):
         """Setter for prop longitude"""
-        if isinstance(value, (float, int)) or not -180.0 <= float(value) <= 180.0:
+        try:
+            float_value = float(value)
+            if not -180.0 <= float_value <= 180.0:
+                raise ValueError
+            self._longitude = float_value
+        except (TypeError, ValueError):
             raise ValueError("Invalid value specified for Longitude")
-        self._longitude = float(value)
+
+    @property
+    def owner_id(self):
+        """ Returns value of property owner """
+        return self._owner_id
+
+    @owner_id.setter
+    def owner_id(self, value):
+        """Setter for prop owner"""
+        if not value or not isinstance(value, str):
+            raise ValueError("Invalid object type passed in for owner!")
+        
+        from app.persistence import db_session
+        from app.models.user import User
+
+        existing_user = db_session.query(User).filter(User.id == value).first()
+        if not existing_user:
+            raise ValueError("Owner does not exist")
+        
+        self._owner_id = value
 
     @property
     def owner(self):
-        """ Returns value of property owner """
-        return self._owner
-
-    @owner.setter
-    def owner(self, value):
-        """Setter for prop owner"""
-        if isinstance(value, User):
-            self._owner = value
-        else:
-            raise ValueError("Invalid object type passed in for owner!")
+        """Convinience property to access owner relationship"""
+        return self.owner_r
 
     # --- Methods ---
-    def save(self):
-        """Update the updated_at timestamp whenever the object is modified"""
-        self.updated_at = datetime.now()
+    # def save(self):
+    #     """Update the updated_at timestamp whenever the object is modified"""
+    #     self.updated_at = datetime.now()
 
-    def add_review(self, review):
-        """Add a review to the place."""
-        self.reviews.append(review)
+    # def add_review(self, review):
+    #     """Add a review to the place."""
+    #     self.reviews.append(review)
 
-    def add_amenity(self, amenity):
-        """Add an amenity to the place."""
-        self.amenities.append(amenity)
+    # def add_amenity(self, amenity):
+    #     """Add an amenity to the place."""
+    #     self.amenities.append(amenity)
 
-    @staticmethod
-    def place_exists(place_id):
-        """ Search through all Places to ensure the specified place_id exists """
-        # Unused - the facade get_place method will handle this
+    # @staticmethod
+    # def place_exists(place_id):
+    #     """ Search through all Places to ensure the specified place_id exists """
+    #     # Unused - the facade get_place method will handle this
