@@ -117,6 +117,7 @@ class AmenityRepository(SQLAlchemyRepository):
 # if the DELETE curl command won't work, use these commands via MySQL:
 # mysql -u hbnb_evo_2 -p
 # USE hbnb_evo_2_db;
+# SELECT * FROM amenities WHERE id = '<amenity_id>
 # DELETE FROM place_amenity WHERE amenity_id = 'd8ac4ba0-ae01-4bcd-951a-268883470c28';
 # DELETE FROM amenities WHERE id = 'd8ac4ba0-ae01-4bcd-951a-268883470c28';
 # OR PLEASE REFRESH SERVER

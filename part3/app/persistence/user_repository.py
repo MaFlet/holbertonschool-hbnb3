@@ -81,3 +81,21 @@ class UserRepository(SQLAlchemyRepository):
 #curl -X GET "http://127.0.0.1:5000/api/v1/users/dda62836-478f-4489-9e72-1ae2a5e34fe5"
 # curl -X PUT "http://127.0.0.1:5000/api/v1/users/<user_id>" -H "Content-Type: application/json" -d '{"first_name": "Mary", "last_name": "Ruth", "email": "mary.ruth@example.com", "password": "securepassword123"}'
 # curl -X DELETE "http://127.0.0.1:5000/api/v1/users/<user_id>" and confirm deletion with curl -X GET "http://127.0.0.1:5000/api/v1/users/<user_id>""
+# mysql -u hbnb_evo_2 -p
+# USE hbnb_evo_2_db;
+# INSERT INTO users (
+# id
+# email,
+# first_name,
+# last_name,
+# password,
+# is_admin
+# ) VALUES (
+# '<user_id>',
+# 'admin@hbnb.io'
+# 'Admin'
+# 'HBnB'
+# '<password>,
+# TRUE
+# );
+# SELECT * FROM users WHERE id = '<user_id>', to confirm inserted data in MySQL table
