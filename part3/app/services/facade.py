@@ -39,7 +39,13 @@ class HBnBFacade:
     def update_user(self, user_id, user_data):
         self.user_repo.update(user_id, user_data)
 
-    # --- Users ---
+    def delete_user(self, user_id):
+        """Delete a user"""
+        user = self.get_user(user_id)
+        if user:
+            self.user_repo.delete(user_id)
+
+    # --- Place ---
     def create_place(self, place_data):
         """Create a new place with validation"""
         try:

@@ -54,6 +54,24 @@ class UserRepository(SQLAlchemyRepository):
                 raise ValueError(f"Error updating user: {str(e)}")
         return None
     
+    def delete(self, user_id):
+        """Delete a user"""
+        try:
+            user = self.get(user_id)
+            if user:
+                user.reviews_r = []
+                user.places_r = []
+                db_session.flush()
+
+                db_session.delete(user)
+                db_session.commit()
+                return True
+            return False
+        except Exception as e:
+            db_session.rollback()
+            raise ValueError(f"Error deleting user: {str(e)}")
+
+    
 # Use these CURL commands for testing
 #curl -X POST "http://127.0.0.1:5000/api/v1/users/" -H "Content-Type: application/json" -d '{"first_name": "Jane", "last_name": "Martin", "email": "jane.martine@example.com", "password": "securepassword123"}'
 #{
@@ -61,3 +79,5 @@ class UserRepository(SQLAlchemyRepository):
     #"message": "User created successfully"
 #}
 #curl -X GET "http://127.0.0.1:5000/api/v1/users/dda62836-478f-4489-9e72-1ae2a5e34fe5"
+# curl -X PUT "http://127.0.0.1:5000/api/v1/users/<user_id>" -H "Content-Type: application/json" -d '{"first_name": "Mary", "last_name": "Ruth", "email": "mary.ruth@example.com", "password": "securepassword123"}'
+# curl -X DELETE "http://127.0.0.1:5000/api/v1/users/<user_id>" and confirm deletion with curl -X GET "http://127.0.0.1:5000/api/v1/users/<user_id>""

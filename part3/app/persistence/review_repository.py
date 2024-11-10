@@ -64,3 +64,10 @@ class ReviewRepository(SQLAlchemyRepository):
         except Exception as e:
             db_session.rollback()
             raise ValueError(f"Error deleting review: {str(e)}")
+
+# Use these CURL commands for testing
+#curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" -H "Content-Type: application/json" -d '{"text": "Great place to stay!", "rating": 5, "user_id": "<user_id>", "place_id": "<place_id>"}'
+#curl -X GET "http://127.0.0.1:5000/api/v1/reviews/<review_id>"
+# curl -X PUT "http://127.0.0.1:5000/api/v1/reviews/<review_id>" -H "Content-Type: application/json" -d '{"text": "Amazing stay!", "rating": 4}'
+# curl -X DELETE "http://127.0.0.1:5000/api/v1/reviews/<review_id>" and confirm deletion with curl -X GET "http://127.0.0.1:5000/api/v1/reviews/<review_id>""
+

@@ -75,26 +75,44 @@ class UserResource(Resource):
     @api.expect(user_model)
     @api.response(200, 'User details updated successfully')
     @api.response(400, 'Invalid input data')
-    @api.response(400, 'Setter validation failure')
     @api.response(404, 'User not found')
     def put(self, user_id):
         """ Update user specified by id """
-        user_data = api.payload
-        wanted_keys_list = ['first_name', 'last_name', 'email']
+        try:
+            user_data = api.payload
+            user = facade.get_user(user_id)
+            if not user:
+                return {'error': 'User not found'}, 404
+            allowed_fields = ['first_name', 'last_name', 'email', 'password']
+            update_data = {k: v for k, v in user_data.items() if k in allowed_fields}
+            if not update_data:
+                return {'error': 'No valid fields to update'}, 400
+            
+            facade.update_user(user_id, update_data)
+            updated_user = facade.get_user(user_id)
 
-        # Ensure that user_data contains only what we want (e.g. first_name, last_name, email)
-        # https://stackoverflow.com/questions/10995172/check-if-list-of-keys-exist-in-dictionary
-        if len(user_data) != len(wanted_keys_list) or not all(key in wanted_keys_list for key in user_data):
-            return {'error': 'Invalid input data - required attributes missing'}, 400
-
-        # Check that user exists first before updating them
-        user = facade.get_user(user_id)
-        if user:
-            try:
-                facade.update_user(user_id, user_data)
-            except ValueError as error:
-                return { 'error': "Setter validation failure: {}".format(error) }, 400
-
-            return {'message': 'User updated successfully'}, 200
-
-        return {'error': 'User not found'}, 404
+            return {
+                'id': str(updated_user.id),
+                'first_name': updated_user.first_name,
+                'last_name': updated_user.last_name,
+                'email': updated_user.email,
+                'message': 'User updated sucessfully'
+            }, 200
+        
+        except ValueError as error:
+            return {'error': f"Validation error: {str(error)}"}, 400
+        except Exception as error:
+            return {'error': f"Error updating user: {str(error)}"}, 500
+        
+    @api.response(204, 'User deleted successfully')
+    @api.response(404, 'User not found')
+    def delete(self, user_id):
+        """Delete a user"""
+        try:
+            user = facade.get_user(user_id)
+            if not user:
+                return {'error': 'User not found'}, 404
+            facade.delete_user(user_id)
+            return '', 204
+        except Exception as error:
+            return {'error': f"Error deleting user: {str(error)}"}, 500
