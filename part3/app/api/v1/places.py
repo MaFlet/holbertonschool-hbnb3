@@ -1,6 +1,9 @@
 from flask_restx import Namespace, Resource, fields
-from flask import request
 # from app.services.facade import HBnBFacade
+from app.models.place import Place
+from app.models.amenity import Amenity
+from app.persistence.repository import SQLAlchemyRepository
+from app.persistence import db_session
 from app.services.facade import facade
 
 api = Namespace('places', description='Place operations')
@@ -186,3 +189,34 @@ class PlaceResource(Resource):
             return '', 204
         except Exception as error:
             return {'error': f"Error deleting place: {str(error)}"}, 500
+        
+@api.route('/<place_id>/amenities/<amenity_id>')
+class PlaceAmenityLink(Resource):
+    @api.doc('link_amenity_to_place')
+    @api.response(201, 'Amenity linked successfully')
+    @api.response(200, 'Amenity already linked')
+    @api.response(404, 'Place or Amenity not found')
+    def post(self, place_id, amenity_id):
+        """Link amenity to a place"""
+        place_repo = SQLAlchemyRepository(Place)
+        amenity_repo = SQLAlchemyRepository(Amenity)
+
+        place = place_repo.get(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+    
+        amenity = amenity_repo.get(amenity_id)
+        if not amenity:
+            return {"error": "Amenity not found"}, 404
+    
+        try:
+            if amenity in place.amenities:
+                return amenity.to_dict(), 200
+    
+            place.amenities.append(amenity)
+            db_session.commit()
+
+            return amenity.to_dict(), 201
+        except Exception as e:
+            db_session.rollback()
+            return {"error": str(e)}, 400

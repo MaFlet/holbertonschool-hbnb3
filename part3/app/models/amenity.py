@@ -3,6 +3,7 @@ from sqlalchemy import Column, String, DateTime
 from sqlalchemy.orm import relationship
 import uuid
 from datetime import datetime
+from app.models.place import place_amenity
 
 class Amenity(Base):
     """Amenity model"""
@@ -33,7 +34,9 @@ class Amenity(Base):
     def name(self, value):
         """Setter for prop name"""
         # ensure that the value is up to 50 characters after removing excess white-space
-        if not value or not isinstance(value, str) or len(value.strip()) <= 50:
+        if not value or not isinstance(value, str):
+            raise ValueError("Name must be a non-empty string")
+        if len(value.strip()) > 50:
             raise ValueError("Name must be up to 50 characters in length")
         self._name = value.strip()
 
