@@ -63,3 +63,6 @@ class PlaceRepository(SQLAlchemyRepository):
 #curl -X GET "http://127.0.0.1:5000/api/v1/places/<place_id>""
 # curl -X PUT "http://127.0.0.1:5000/api/v1/places/<place_id>" -H "Content-Type: application/json" -d '{"title": "Sunny Apartment", "description": "Great place to stay", "price": 200.0, "latitude": 37.7749, "longitude": -122.4194, "owner_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"}'
 # curl -X DELETE "http://127.0.0.1:5000/api/v1/places/<place_id" and confirm deletion with curl -X GET "http://127.0.0.1:5000/api/v1/places/<place_id>""
+# curl -X POST "http://127.0.0.1:5000/api/v1/places/{place_id}/amenities/{amenity_id}" -H "Content-Type: application/json"
+# USE hbnb_evo_2_db;
+# SELECT * FROM places;

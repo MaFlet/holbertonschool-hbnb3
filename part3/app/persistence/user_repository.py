@@ -83,6 +83,7 @@ class UserRepository(SQLAlchemyRepository):
 # curl -X DELETE "http://127.0.0.1:5000/api/v1/users/<user_id>" and confirm deletion with curl -X GET "http://127.0.0.1:5000/api/v1/users/<user_id>""
 # mysql -u hbnb_evo_2 -p
 # USE hbnb_evo_2_db;
+# SELECT * FROM users;
 # INSERT INTO users (
 # id
 # email,
