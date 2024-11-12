@@ -13,7 +13,7 @@ class Amenity(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.now())
     updated_at = Column(DateTime, nullable=False, default=datetime.now())
     _name = Column("name", String(50), nullable=False)
-    places = relationship("Place", secondary="place_amenity", back_populates="amenities", cascade="all, delete")
+    places = relationship("Place", secondary=place_amenity, back_populates="amenities")
 
     def __init__(self, name):
         if not name:

@@ -98,7 +98,7 @@ class AmenityResource(Resource):
 
         return {'error': 'Amenity not found'}, 404
     
-    @api.response(204, 'Amenity deleted successfully')
+    @api.response(200, 'Amenity deleted successfully')
     @api.response(404, 'Amenity not found')
     @api.response(500, 'Server error')
     def delete(self, amenity_id):
@@ -108,6 +108,6 @@ class AmenityResource(Resource):
             return {'error': 'Amenity not found'}, 404
         try:
             facade.delete_amenity(amenity_id)
-            return '', 204
         except Exception as e:
             return {'error': f"Error deleting amenity: {str(e)}"}, 500
+        return {'message': 'Amenity deleted successfully'}, 200

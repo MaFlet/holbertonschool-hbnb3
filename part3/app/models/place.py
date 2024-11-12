@@ -27,7 +27,7 @@ class Place(Base):
     _longitude = Column("longitude", Float, nullable=False)
     _owner_id = Column("owner_id", String(60), ForeignKey('users.id'), nullable=False)
     owner_r = relationship("User", back_populates="places_r")
-    reviews_r = relationship("Review", back_populates="place_r", cascade="all, delete-orphan")
+    reviews_r = relationship("Review", back_populates="place_r")
     amenities = relationship("Amenity", secondary=place_amenity, back_populates="places")
 
     def __init__(self, title, description, price, latitude, longitude, owner_id):

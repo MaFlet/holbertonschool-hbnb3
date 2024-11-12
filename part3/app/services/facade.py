@@ -7,6 +7,7 @@ from app.models.user import User
 from app.models.place import Place
 from app.models.amenity import Amenity
 from app.models.review import Review
+from app.persistence import db_session
 #from app.services.facade import HBnBFacade
 
 
@@ -135,9 +136,14 @@ class HBnBFacade:
 
     def delete_amenity(self, amenity_id):
         """Delete an amenity"""
-        amenity = self.get_amenity(amenity_id)
-        if amenity:
-            self.amenity_repo.delete(amenity)
+        # amenity = self.get_amenity(amenity_id)
+        # if amenity:
+        #     self.amenity_repo.delete(amenity)
+        amenity = db_session.query(Amenity).get(amenity_id)
+        if not amenity:
+            raise ValueError("Amenity not found")
+        db_session.delete(amenity)
+        db_session.commit()
 
 
     # # --- Reviews ---
