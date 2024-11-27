@@ -1,6 +1,7 @@
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields, Api, reqparse
 # from app.services.facade import HBnBFacade
 from app.services.facade import facade
+from werkzeug.security import check_password_hash
 
 api = Namespace('users', description='User operations')
 
@@ -116,3 +117,28 @@ class UserResource(Resource):
             return '', 204
         except Exception as error:
             return {'error': f"Error deleting user: {str(error)}"}, 500
+# LogIn route
+users = {
+    "user@example.com": {
+        "password": "hashed_password"  # This should be a hashed password
+    }
+}
+login_parser = reqparse.RequestParser()
+login_parser.add_argument('email', type=str, required=True, help='Email is required')
+login_parser.add_argument('password', type=str, required=True, help='Password is required')
+@api.route('/login')
+class Login(Resource):
+    def post(self):
+        args = login_parser.parse_args()
+        email = args['email']
+        password = args['password']
+        # Check if the user exists and the password is correct
+        user = users.get(email)
+        if user and check_password_hash(user['password'], password):
+            # Generate a token (this is just a placeholder)
+            token = "your_jwt_token_here"
+            return {'message': 'Login successful', 'token': token}, 200
+        else:
+            return {'message': 'Invalid email or password'}, 401
+if __name__ == '__main__':
+    app.run(debug=True, port = 5555)
