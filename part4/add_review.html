@@ -11,12 +11,21 @@
         <!-- Add something to idfentify the place you're reviewing -->
         <form id="review-form">
             <h2>Add a Review</h2>
-            <label for="review">Your Review:</label>
-            <textarea id="review" name="review" required></textarea>
+            <label for="place">Place Name:</label><br>
+            <input type="text" id="place" name="place" required><br><br>
+            <label for="review">Your Review:</label><br>
+            <textarea id="review" name="review" class="large-textarea" required></textarea ><br><br>
             <label for="rating">Rating:</label>
             <select id="rating" name="rating" required>
                 <!-- Options for rating -->
+                <option value="" disabled selected>Select a rating</option>
+                <option value="1">1 Star</option>
+                <option value="2">2 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="5">5 Stars</option>     
             </select>
+            <br><br>
             <button type="submit">Submit Review</button>
         </form>
     </main>

@@ -30,9 +30,16 @@ nav a {
 main {
     padding: 2rem;
 }
+
 .place-card, .review-card {
     Border: 1px solid #ddd;
     border-radius: 10px;
     margin: 20px;
     padding: 10px;
+}
+
+.large-textarea {
+    width: 60%; /* or any specific width like 500px */
+    height: 200px; /* or any specific height */
+    resize: vertical; /* Allows the user to resize vertically */
 }
