@@ -122,4 +122,20 @@ document.addEventListener('DOMContentLoaded', () => {
     Phonx's code snippet for review ends here
 
 ************************************/
+ /* ******* 
+    Mary's code
+    ********/
+      const loginForm = document.getElementById('login-form');
+
+      if (loginForm) {
+          loginForm.addEventListener('submit', async (event) => {
+              event.preventDefault();
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          if (!email | password) {
+            window.location.href="login.html";
+          }
+          return loginParameters=list (email, password);
+          });
+      }
 });
