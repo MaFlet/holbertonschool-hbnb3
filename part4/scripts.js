@@ -125,17 +125,45 @@ document.addEventListener('DOMContentLoaded', () => {
  /* ******* 
     Mary's code
     ********/
-      const loginForm = document.getElementById('login-form');
+    async function loginUser(email, password) {
+      const response = await fetch('https://your-api-url/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+      });
+      if (!response.ok) {
+        throw new Error('Login Unsuccessful')
+      }
+      const data = await response.json();
+      return data;
+    //   if (response.ok) {
+    //     const data = await response.json();
+    //     document.cookie = `token=${data.access_token}; path=/`;
+    //     window.location.href = 'index.html';
+    // } else {
+    //     alert('Login failed: ' + response.statusText);
+    // }
+  }
 
       if (loginForm) {
           loginForm.addEventListener('submit', async (event) => {
               event.preventDefault();
-          const email = document.getElementById('email').value;
-          const password = document.getElementById('password').value;
-          if (!email | password) {
+          const formData = new FormData(loginForm);
+          const data = Object.fromEntries(formData);
+          const { email, password } = data;
+          if (!email || !password) {
             window.location.href="login.html";
+          return;
           }
-          return loginParameters=list (email, password);
+          try {
+            const result = await loginUser(email, password);
+            // Handle successful login
+            console.log('Login successful:', result);
+        } catch (error) {
+            console.error('Login error:', error);
+        }
           });
-      }
+        }
 });
