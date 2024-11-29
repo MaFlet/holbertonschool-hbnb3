@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, session
-from app import app
-from app.models import User
-from flask_bcrypt import Bcrypt
+from app import app, bycrpt
+from app.models.user import User
+from app.persistence import db_session
 
 
 bcrypt = Bcrypt()
@@ -12,9 +12,9 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        user = User.query.filter_by(email=email).first()
+        user = db_session.query(User).filter(User._email == email).first() # using User's model query
 
-        if user and bcrypt.check_password_hash(user.password, password):
+        if user and user.verify_password(password):
             session['user_id'] = user.id
             session['is_admin'] = user.is_admin
             return redirect(url_for('index'))
@@ -31,4 +31,9 @@ def logout():
 @app.route('/')
 def index():
     is_authenticated = 'user_id' in session
-    return render_template('index.html', is_authenticated=is_authenticated)
+    if is_authenticated:
+        user = db_session.query(User).filter(User.id == session['user_id']).first()
+        return render_template('index.html',
+                               is_authenticated=is_authenticated,
+                               user=user)
+    return render_template('index.html', is_authenticated=False)
