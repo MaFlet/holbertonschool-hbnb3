@@ -125,19 +125,19 @@ document.addEventListener('DOMContentLoaded', () => {
  /* ******* 
     Mary's code
     ********/
-    // async function loginUser(email, password) {
-    //   const response = await fetch('http://127.0.0.1:5000/login', {
-    //       method: 'POST',
-    //       headers: {
-    //           'Content-Type': 'application/json'
-    //       },
-    //       body: JSON.stringify({ email, password })
-    //   });
-    //   if (!response.ok) {
-    //     throw new Error('Login Unsuccessful')
-    //   }
-    //   const data = await response.json();
-    //   return data; // I move it at the bottom
+    async function loginUser(email, password) {
+      const response = await fetch('http://127.0.0.1:5000/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+      });
+      if (!response.ok) {
+        throw new Error('Login Unsuccessful')
+      }
+      const data = await response.json();
+      return data;
     //   if (response.ok) {
     //     const data = await response.json();
     //     document.cookie = `token=${data.access_token}; path=/`;
@@ -145,8 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // } else {
     //     alert('Login failed: ' + response.statusText);
     // }
-
-  const loginForm = document.getElementById('login-form');
+  }
 
       if (loginForm) {
           loginForm.addEventListener('submit', async (event) => {
@@ -154,35 +153,17 @@ document.addEventListener('DOMContentLoaded', () => {
           const formData = new FormData(loginForm);
           const data = Object.fromEntries(formData);
           const { email, password } = data;
-
           if (!email || !password) {
             window.location.href="login.html";
           return;
           }
-
           try {
             const result = await loginUser(email, password);
             // Handle successful login
             console.log('Login successful:', result);
-            windiw.location.href = 'index.html';
         } catch (error) {
             console.error('Login error:', error);
         }
           });
         }
-
-async function loginUser(email, password) {
-  const response = await fetch('http://127.0.0.1:5000/app/routes/login', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, password })
-  });
-  if (!response.ok) {
-    throw new Error('Login Unsuccessful')
-  }
-  const data = await response.json();
-  return data;
-}
 });

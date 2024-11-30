@@ -7,7 +7,7 @@ from datetime import datetime
 from flask_bcrypt import Bcrypt
 from sqlalchemy import Column, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
-# from app.persistence import db_session
+from app.persistence import db_session
 
 bcrypt = Bcrypt()
 
