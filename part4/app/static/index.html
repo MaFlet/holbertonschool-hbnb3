@@ -4,17 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List of Places</title>
+    <link rel="icon" type="image/png" href="holbertonschool-hbnb3/part4/app/static/images/icon.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <nav>
-            <a href="/">Home</a>
-            <!-- Authorisation links will be inserted here -->
-        </nav>
+        <img src="holbertonschool-hbnb3/part4/app/static/images/vacationrental.png" alt="HBnB List of places" class="logo">
+        <a href="login.html" class="login-button">Log In</a>
     </header>
 
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+    </nav>
+
     <main>
+        <div class="place-cards-grid">
+            <div class="place-card">
+                <img src="holbertonschool-hbnb3/part4/app/static/images/ghiblihouse1.png" alt="HBnB List of Places">
+                <h3>Japanese-style lofi house</h3>
+                <p>$450 per night</p>
+                <button class="details-button" data-place-id="1">View Details</button> 
+                <!-- Add this to database - place-id -->
+            </div>
+            <div class="place-card">
+                <img src="holbertonschool-hbnb3/part4/app/static/images/ghiblihouse2.png" alt="HBnB List of Places">
+                <h3>Isolated lofi farm house</h3>
+                <p>$250 per night</p>
+                <button class="details-button" data-place-id="1">View Details</button> 
+                <!-- Add this to database - place-id -->
+            </div>
+            <div class="place-card">
+                <img src="holbertonschool-hbnb3/part4/app/static/images/ghblihouse3.png" alt="HBnB List of Places">
+                <h3>Isolated lofi forest house</h3>
+                <p>$150 per night</p>
+                <button class="details-button" data-place-id="1">View Details</button> 
+                <!-- Add this to database - place-id -->
+            </div>
         <section class="filters">
             <select id="price-filrer">
                 <option value="all">All Prices</option>
@@ -24,17 +50,10 @@
             </select>
             </form>
         </section>
-
-        <section id="places-list">
-           
-            <!-- <p>Name<br><img src="static/images/icon.png">
-            </p>
-            <p>Price</p> -->
-
-            <!-- <button class="details-button">View Details</button> -->
-            <!-- List of places will be populated dynamically -->
-        </section>
     </main>
+    <footer>
+        <p>© 2024 Holberton Bed and Breakfast</p>
+    </footer>
         <script src="scripts.js"></script>
 </body>
 </html>
