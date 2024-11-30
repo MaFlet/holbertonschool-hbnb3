@@ -1,39 +1,72 @@
-from flask import render_template, request, redirect, url_for, session
-from app import app, bcrypt
+from flask import (
+    render_template, request, redirect,
+    url_for, session, send_from_directory,
+    Blueprint, flash
+)
+from typing import Union
+from werkzeug.wrappers import Response
+from sqlalchemy.exc import SQLAlchemyError
+from functools import wraps
+from app import bcrypt
 from app.models.user import User
-# from app.persistence import db_session
+from app.persistence import db_session
 
 
-bcrypt = Bcrypt()
+main = Blueprint('main', __name__)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+def login_required(f):
+    """Check if user is logged in"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Please login first.', 'error')
+            return redirect(url_for('main.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@main.route('/login', methods=['GET', 'POST'])
+def login() -> Union[str, Response]:
+    """Handles user login"""
+    if 'user_id' in session:
+        return redirect(url_for('main.index'))
+    
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+        try:
+            email = request.form.get('email')
+            password = request.form.get('password')
 
-        user = db_session.query(User).filter(User._email == email).first() # using User's model query
+            if not email or not password:
+                flash('Email and password are required.', 'error')
+                return render_template('login.html')
 
-        if user and user.verify_password(password):
-            session['user_id'] = user.id
-            session['is_admin'] = user.is_admin
-            return redirect(url_for('index'))
-        else:
-            return render_template('login.html', error='Invalid email or password')
+            user = db_session.query(User).filter(User._email == email).first() # using User's model query
+
+            if user and user.verify_password(password):
+                session['user_id'] = user.id
+                session['is_admin'] = user.is_admin
+                flash('Successfully logged in!', 'success')
+                return redirect(url_for('main.index'))
+            flash('Invalid email or password.', 'error')
+            return render_template('login.html')
+        except SQLAlchemyError as e:
+            flash('Database error occurred. Please try again.', 'error')
+            return render_template('login.html')
         
     return render_template('login.html')
 
-@app.route('/logout')
-def logout():
+@main.route('/logout')
+def logout() -> Response:
     session.clear()
-    return redirect(url_for('index'))
+    flash('Successfullt logged out!', 'success')
+    return redirect(url_for('main.index'))
 
-@app.route('/')
-def index():
-    is_authenticated = 'user_id' in session
-    if is_authenticated:
-        user = db_session.query(User).filter(User.id == session['user_id']).first()
-        return render_template('index.html',
-                               is_authenticated=is_authenticated,
-                               user=user)
-    return render_template('index.html', is_authenticated=False)
+@main.route('/')
+def index() -> str:
+    print("flaskindex")
+    # is_authenticated = 'user_id' in session
+    # if is_authenticated:
+    #     user = db_session.query(User).filter(User.id == session['user_id']).first()
+    #     return send_from_directory('index.html',
+    #                            is_authenticated=is_authenticated,
+    #                            user=user)
+    return send_from_directory('templates', 'index.html')

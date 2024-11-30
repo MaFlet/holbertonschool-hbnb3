@@ -10,6 +10,8 @@ def create_app():
     """ method used to create an app instance """
     app = Flask(__name__)
     api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API')
+    # from app.routes import main
+    # app.register_blueprint(main)
 
     # Register the namespaces
     api.add_namespace(users_ns, path='/api/v1/users')
