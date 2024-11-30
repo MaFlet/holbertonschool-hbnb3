@@ -1,14 +1,20 @@
 from flask import Flask
-from flask_bcrypt import Bcrypt
-# from flask_sqlalchemy import SQLAlchemy
-import secrets
+from flask_restx import Api
+from app.api.v1.users import api as users_ns
+from app.api.v1.amenities import api as amenities_ns
+from app.api.v1.places import api as places_ns
+from app.api.v1.reviews import api as reviews_ns
 
 
-app = Flask(__name__)
+def create_app():
+    """ method used to create an app instance """
+    app = Flask(__name__)
+    api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API')
 
-app.secret_key = secrets.token_hex(16) # generate secret key for session (Does not require JWT token)
+    # Register the namespaces
+    api.add_namespace(users_ns, path='/api/v1/users')
+    api.add_namespace(amenities_ns, path='/api/v1/amenities')
+    api.add_namespace(places_ns, path='/api/v1/places')
+    api.add_namespace(reviews_ns, path='/api/v1/reviews')
 
-# db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-
-from app import routes
+    return app

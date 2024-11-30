@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, session
-from app import app, Bcrypt
+from app import app, bcrypt
 from app.models.user import User
-from app.persistence import db_session
+# from app.persistence import db_session
 
 
 bcrypt = Bcrypt()
