@@ -166,4 +166,64 @@ document.addEventListener('DOMContentLoaded', () => {
         }
           });
         }
+        function switchform(type) {
+          const visitorForm = document.getElementById('visitor-form');
+          const ownerForm = document.getElementById('owner-form');
+          const visitorButton = document.getElementById('visitor-button');
+          const ownerbutton = document.getElementById('owner-button');
+
+          if (type === 'visitor') {
+            visitorForm.style.display = 'block';
+            ownerForm.style.display = 'none';
+            visitorButton.classList.add('active');
+            ownerbutton.classList.remove('active');
+          } else {
+            visitorForm.style.display = 'none';
+            ownerForm.style.display = 'block';
+            visitorButton.classList.remove('active');
+            ownerbutton.classList.add('active');
+          }
+        }
+
+        function validateForm(formID) {
+          const form = document.getElementById(formID);
+          const password = form.querySelector('input[type="password"]').value;
+          const confirmPassword = form.querySelector('input[name="confirmPassword"]').value;
+
+          if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return false;
+          }
+          return true;
+        }
+        document.getElementById('visitor-form').onsubmit = function(e) {
+          if (!validateForm('visitor-form')) {
+            e.preventDefault();
+          }
+        };
+        document.getElementById('owner-form').onsubmit = function(e) {
+          if (!validateForm('owner-form')) {
+            e.preventDefault();
+          }
+        }
+
+        function validateCoordinates() {
+          const lat = parseFloat(document.getElementById('latitude')).value;
+          const lng = parseFloat(document.getElementById('longitude')).value;
+
+          if (lat < -90 || lat > 90) {
+            alert('Latitude must be between -90 and 90 degrees');
+            return false;
+          }
+          if (lng < -180 || lng > 180) {
+            alert('Longitude must be between -180 and 180 degrees');
+            return false;
+          }
+          return true;
+        }
+        document.getElementById('owner-form').onsubmit = function(e) {
+          if (!validateForm('owner-form') || !validateCoordinates()) {
+            e.preventDefault();
+          }
+        }
 });

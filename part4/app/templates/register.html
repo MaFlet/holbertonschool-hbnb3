@@ -13,10 +13,6 @@
     }
 
     body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
         background-color: #f0f2f5;
         padding: 2rem;
     }
@@ -26,8 +22,8 @@
         padding: 2rem;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        width: 100%;
-        max-width: 500px;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     header {
@@ -38,209 +34,229 @@
     .header h1 {
         color: #1a73e8;
         font-size: 1.8rem;
-        margin-bottom: ;
+        margin-bottom: 0.5rem;
     }
 
-nav {
-    background-color: white;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid #ddd;
-}
+    .user-type-selector {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 0.5rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        justify-content: center;
+    }
 
-nav a {
-    color: #fff;
-    text-decoration: none;
-    margin-left: 1rem;
-}
+    .user-type-button.active {
+        background-color: #1a73e8;
+        color: white;
+    }
 
-nav a:hover {
-    color: #ff385c;
-}
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
 
-main {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 2rem;
-}
+    .form-group {
+        margin-bottom: 1rem;
+    }
 
-.place-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-}
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #5f6368;
+    }
 
-.place-card, .review-card {
-    background: white;
-    Border: 1px solid #ddd;
-    border-radius: 10px;
-    margin: 20px;
-    padding: 10px;
-    overflow: hidden;
-}
+    input, select, textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid #dadce0;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
 
-.place-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
-}
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #1a73e8;
+    }
 
-.large-textarea {
-    width: 60%; /* or any specific width like 500px */
-    height: 200px; /* or any specific height */
-    resize: vertical; /* Allows the user to resize vertically */
-}
+    .name-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
 
-.login-button {
-    background-color: #ff385c;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    text-decoration: none;
-    transition: background-color 0.2s;
-}
+    .submit-button {
+        width: 100%;
+        padding: 1rem;
+        border: none;
+        border-radius: 4px;
+        background-color: #1a73e8;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
 
-.login-button:hover {
-    background-color: #e31c5f;
-}
+    .submit-button:hover {
+        background-color: #1557b0;
+    }
 
-.details-button {
-    background-color: #ff385c;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 1rem;
-}
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
 
-.place-details {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 2rem;
-}
+    .login-link a {
+        color: #1a73e8;
+        text-decoration: none;
+    }
 
-.place-info {
-    margin: 1rem 0;
-}
+    #owner-form {
+        display: none;
+    }
 
-.add-review {
-    margin-top: 2rem;
-}
+    .required {
+        color: #d93025;
+    }
 
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.form textarea {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    resize: vertical;
-}
-
-.form button {
-    background-color: #ff385c;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: fit-content;
-}
-
-.login-form-container {
-    max-width: 400px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.login-form input {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.login-form button {
-    background-color: #ff385c;
-    color: white;
-    padding: 0.5rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-footer {
-    background-color: white;
-    padding: 1rem 2rem;
-    text-align: center;
-    border-top: 1px solid #ddd;
-    margin-top: 2rem;
-}
+    .error {
+        color: #d93035;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        display: none;
+    }
 
     </style>
 </head>
 <body>
-    <header>
-        <img src="../static/images/vacationrental.png" alt="Making you feel at home,book your vacation home now" class="logo">
-    </header>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
-    </nav>
-    <main>
-        <div class="login-form-container">
-            <form class="login-form" action="/login" method="POST">
-            <div class="header">
-            <h2>Login to Your Account</h2>
-            <p>Please enter your credentials to login</p>
-            </div>
-            <div class="form-group">
-                <label for="login-email">Email</label>
-                <input
-                    type="email"
-                    id="login-email"
-                    name="email"
-                    required
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                >
-            </div>
-            <br>
-            <div class="form-group">
-                <label for="login-password">Password</label>
-                <input
-                    type="password"
-                    id="login-password"
-                    name="password"
-                    required
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                >
-            </div>
-            <br>
-                <button type="submit">Log In</button>
-            <br>
-            <div class="toggle-form">
-                Don't have an account?
-                <button type="button" class="toggle-button" onclick="toggleForms()">Register</button>
-            </div>
-            </form>
+    <div class="container">
+        <div class="header">
+            <h1>Create an Account</h1>
+            <p>Join HBnB as a visitor or property owner</p>
         </div>
+        <div class="user-type-selector">
+            <button id="visitor-button" class="user-type-button active" onclick="switchForm('visitor')">
+                Register as Visitor
+            </button>
+            <button id="owner-button" class="user-type-button" onclick="switchForm('owner')">
+                Register as Owner
+            </button>
+
+<!-- Visitor Registration Form -->
+        <form class="visitor-form" action="/register-visitor" method="POST">
+            <div class="form-section">
+                <div class="name-fields">
+                    <div class="form-group">
+                        <label for="visitor-first-name">First Name <span class="required">*</span></label>
+                        <input type="text" id="visitor-first-name" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitor-last-name">Last Name <span class="required">*</span></label>
+                        <input type="text" id="visitor-last-name" name="lastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="visitor-email">Email <span class="required">*</span></label>
+                    <input type="email" id="visitor-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="visitor-password">Password <span class="required">*</span></label>
+                    <input type="password" id="visitor-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="visitor-confrim-password">Password <span class="required">*</span></label>
+                    <input type="password" id="visitor-confirm-password" name="password" required>
+                </div>
+            </div>
+                <button type="submit" class="submit-button">Register as Visitor</button>
+            </form>
+
+<!-- Owner Registration Form -->
+        <form class="owner-form" action="/register-owner" method="POST">
+        <div class="form-section">
+            <h2>Personal Information</h2>
+            <div class="name-fields">
+                <div class="form-group">
+                    <label for="owner-first-name">First Name <span class="required">*</span></label>
+                    <input type="text" id="owner-first-name" name="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="owner-last-name">Last Name <span class="required">*</span></label>
+                    <input type="text" id="onwer-last-name" name="lastName" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="owner-email">Email <span class="required">*</span></label>
+                <input type="email" id="owner-email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="owner-password">Password <span class="required">*</span></label>
+                <input type="password" id="owner-password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="owner-confirm-password">Password <span class="required">*</span></label>
+                <input type="password" id="owner-confirm-password" name="password" required>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Place Information</h2>
+            <div class="form-group">
+                <label for="place-name">Place Name <span class="required">*</span></label>
+                <input type="text" id="place-name" name="placeName" required>
+            </div>
+            <div class="form-group">
+                <label for="place-type">Place Type <span class="required">*</span></label>
+                <select id="place-type" name="placeType" required>
+                    <option value="">Select Place Type</option>
+                    <option value="house">House</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="villa">Villa</option>
+                    <option value="cottage">Cottage</option>
+                    <option value="cabin">Cabin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Place Location <span class="required">*</span></label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label for="latitude">Latitude</label>
+                        <input
+                            type="number"
+                            id="latitude"
+                            name="latitude"
+                            step="any"
+                            required
+                            placeholder="e.g., -74.0060"
+                        >
+                    </div>
+                    <div>
+                        <label for="longitude">Longitude</label>
+                        <input
+                            type="number"
+                            id="longitude"
+                            name="longitude"
+                            step="any"
+                            required
+                            placeholder="e.g., -74.0060"
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+        </form>
+        </div>
+    </div>
+        <button type="submit" class="submit-button">Register as Owner</button>
+    </form>
+
+        <div class="login-link">
+            Already have an account? <a href="login.html">Login</a>
+        </div>    
+    </div>
     </main>
     <footer>
         <p>© 2024 Holberton Bed and Breakfast</p>
