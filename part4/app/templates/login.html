@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login Page</title>
     <link rel="icon" type="image/png" href="holbertonschool-hbnb3/part4/app/static/images/icon.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <img src="holbertonschool-hbnb3/part4/app/static/images/vacationrental.png" alt="Making you feel at home,book your vacation home now" class="logo">
-        <a href="login.html" class="login-button">Log In</a>
+        <img src="../static/images/vacationrental.png" alt="Making you feel at home,book your vacation home now" class="logo">
     </header>
     <nav>
         <a href="index.html">Home</a>
@@ -18,11 +17,41 @@
     </nav>
     <main>
         <div class="login-form-container">
+            <form class="login-form" action="/login" method="POST">
+            <div class="header">
             <h2>Login to Your Account</h2>
-            <form class="login-form">
-                <input type="email" id="email" placeholder="Email" required>
-                <input type="password" id="password" placeholder="Password" required>
+            <p>Please enter your credentials to login</p>
+            </div>
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input
+                    type="email"
+                    id="login-email"
+                    name="email"
+                    required
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                >
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input
+                    type="password"
+                    id="login-password"
+                    name="password"
+                    required
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                >
+            </div>
+            <br>
                 <button type="submit">Log In</button>
+            <br>
+            <div class="toggle-form">
+                Don't have an account?
+                <button type="button" class="toggle-button" onclick="toggleForms()">Register</button>
+            </div>
             </form>
         </div>
     </main>
