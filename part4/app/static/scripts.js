@@ -33,19 +33,110 @@ function getCookie(name) {
   return null;
 }
 
-function getPlaceIdFromURL() {
+// old code
+//function getPlaceIdFromURL() {
   // Extract the place ID from window.location.search
   // Your code here
   // Get the query string from the URL
-const queryString = window.location.search;
+//const queryString = window.location.search;
 
 // Parse the query string
-const urlParams = new URLSearchParams(queryString);
+//const urlParams = new URLSearchParams(queryString);
 
 // Retrieve the place ID
-const placeId = urlParams.get('place_id');  
+//const placeId = urlParams.get('place_id');  
 //console.log(placeId);
+// old code ends here
+
+// ** Egan's code to be reviewed **//
+function getPlaceIdFromURL() {
+  const queryString = window.location.search; // Extract query string from URL
+  const urlParams = new URLSearchParams(queryString); // Parse query string
+  const placeId = urlParams.get('place_id'); // Retrieve place_id from query params
+  return placeId; // Return place ID
 }
+
+async function fetchPlaceDetails(token, placeId) {
+  try {
+    const response = await fetch(`/api/places/${placeId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Include JWT token
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch place details');
+    }
+
+    const place = await response.json(); // Parse the response JSON
+    displayPlaceDetails(place); // Pass the place details to display function
+  } catch (error) {
+    console.error('Error fetching place details:', error);
+    alert('Error fetching place details. Please try again.');
+  }
+}
+
+function displayPlaceDetails(place) {
+  const placeDetailsSection = document.getElementById('place-details');
+  placeDetailsSection.innerHTML = ''; // Clear existing content
+
+  // Create and append elements for place details
+  const placeName = document.createElement('h1');
+  placeName.textContent = place.title;
+
+  const placeHost = document.createElement('p');
+  placeHost.innerHTML = `<strong>Host:</strong> ${place.host}`;
+
+  const placePrice = document.createElement('p');
+  placePrice.innerHTML = `<strong>Price per night:</strong> $${place.price}`;
+
+  const placeDescription = document.createElement('p');
+  placeDescription.innerHTML = `<strong>Description:</strong> ${place.description}`;
+
+  const amenitiesList = document.createElement('ul');
+  amenitiesList.id = 'place-amenities';
+  place.amenities.forEach(amenity => {
+    const amenityItem = document.createElement('li');
+    amenityItem.textContent = amenity;
+    amenitiesList.appendChild(amenityItem);
+  });
+
+  // Append elements to the place details section
+  placeDetailsSection.appendChild(placeName);
+  placeDetailsSection.appendChild(placeHost);
+  placeDetailsSection.appendChild(placePrice);
+  placeDetailsSection.appendChild(placeDescription);
+  placeDetailsSection.appendChild(amenitiesList);
+
+  // Populate reviews section
+  const reviewsSection = document.querySelector('.reviews');
+  reviewsSection.innerHTML = '<h2>Reviews</h2>';
+  place.reviews.forEach(review => {
+    const reviewCard = document.createElement('div');
+    reviewCard.className = 'review-card';
+
+    const reviewComment = document.createElement('p');
+    reviewComment.className = 'review-comment';
+    reviewComment.textContent = `"${review.text}"`;
+
+    const reviewUser = document.createElement('p');
+    reviewUser.className = 'review-user';
+    reviewUser.textContent = `- ${review.user}`;
+
+    const reviewRating = document.createElement('p');
+    reviewRating.className = 'review-rating';
+    reviewRating.innerHTML = `<strong>Rating:</strong> ${review.rating}/5`;
+
+    reviewCard.appendChild(reviewComment);
+    reviewCard.appendChild(reviewUser);
+    reviewCard.appendChild(reviewRating);
+    reviewsSection.appendChild(reviewCard);
+  });
+}
+
+// ** Egan's code end here **//
 
 // Async function to submit review
 async function submitReview(token, placeId, reviewText) {
