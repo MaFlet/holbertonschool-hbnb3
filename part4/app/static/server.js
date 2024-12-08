@@ -1,24 +1,35 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const hostname = '127.0.0.1'; // or '0.0.0.0' to listen on all interfaces
-const port = 3000;
-const server = http.createServer((req, res) => {
-    if (req.url === '/') {
-        fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Server Error');
-            } else {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end(data);
-            }
-        });
-    } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('404 Not Found');
-    }
+const express = require('express');
+const mysql = require('mysql');
+const { v4: uuid} = require('uuid');
+
+const app = express();
+
+const connection = mysql.createConnection({
+    host: "0.0.0.0",
+    user: "hbnb_evo_2",
+    password: "hbnb_evo_2_pwd",
+    database: "hbnb_evo_2_db"
 });
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+
+app.use(express.urlencoded({ extended: true }));
+
+app.post('/register-visitor', (req, res) => {
+    const { firstName, lastName, email, password } = req.body;
+    const userID = uuid();
+
+    connection.query(
+        'INSERT INTO users (id, first_name, last_name, email, password, is_admin) VALUES (?, ?, ?, ?, ?, ?)',
+        [userID, firstName, lastName, email, password, false],
+        (error, result) => {
+            if (error) {
+                console.error('Error saving visitor:', error);
+                return res.status(500).json({ message: 'Registration failed' + error.message });
+            }
+            return res.status(200).json({ message: 'Registration successful' });
+        }
+    );
+});
+
+app.listen(3000, () => {
+    console.log('Server is running on port 5000');
 });
