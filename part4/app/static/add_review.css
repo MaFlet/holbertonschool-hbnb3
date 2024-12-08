@@ -1,0 +1,117 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #f4f4f4;
+}
+
+/* Header */
+header nav {
+    background-color: #2e8b57;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header nav a img {
+    height: 50px;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Review Section */
+#review-section {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#review-section h2 {
+    color: #2e8b57;
+    margin-bottom: 20px;
+}
+
+#review-form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+#review-form input,
+#review-form textarea,
+#review-form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#review-form textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+#review-form button {
+    background-color: #2e8b57;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+#review-form button:hover {
+    background-color: #246b45;
+}
+
+/* Footer */
+footer {
+    background-color: #2e8b57;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+footer #footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+footer #footer-content p {
+    margin: 0;
+}
+
+footer .social-links {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+}
+
+footer .social-links li a img {
+    width: 30px;
+    height: 30px;
+}

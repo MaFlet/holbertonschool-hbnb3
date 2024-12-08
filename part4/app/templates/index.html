@@ -4,55 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>List of Places</title>
-    <link rel="icon" type="image/png" href="static/images/icon.png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <header>
-        <img src="../static/images/vacationrental.png" alt="HBnB List of places" class="logo">
+        <nav>
+            <a href="index.html" id="site-logo">
+                <img src="static/images/logo.png" alt="Site Logo">
+            </a>
+            <ul>
+                <li><a href="login.html" id="login-link">Login</a></li>
+            </ul>
+        </nav>
     </header>
-
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
-    </nav>
-
     <main>
-        <div class="place-cards-grid">
-            <div class="place-card">
-                <img src="../static/images/ghiblihouse1.png" alt="HBnB List of Places">
-                <h3>Japanese-style lofi house</h3>
-                <p>$450 per night</p>
-                <button class="details-button" data-place-id="1">View Details</button> 
-                <!-- Add this to database - place-id -->
-            </div>
-            <div class="place-card">
-                <img src="../static/images/ghiblihouse2.png" alt="HBnB List of Places">
-                <h3>Isolated lofi farm house</h3>
-                <p>$250 per night</p>
-                <button class="details-button" data-place-id="1">View Details</button> 
-                <!-- Add this to database - place-id -->
-            </div>
-            <div class="place-card">
-                <img src="../static/images/ghblihouse3.png" alt="HBnB List of Places">
-                <h3>Isolated lofi forest house</h3>
-                <p>$150 per night</p>
-                <button class="details-button" data-place-id="1">View Details</button> 
-                <!-- Add this to database - place-id -->
-            </div>
-        <section class="filters">
-            <select id="price-filrer">
-                <option value="all">All Prices</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+        <!-- Filter Section -->
+        <section id="filter">
+            <h2>Filter Places</h2>
+            <label for="price-filter">Max Price:</label>
+            <select id="price-filter">
+                <option value="" disabled selected>Choose a price</option>
+                <option value="100">$100</option>
+                <option value="200">$200</option>
+                <option value="300">$300</option>
+                <option value="400">$400</option>
             </select>
-            </form>
+        </section>
+
+        <!-- Places List Section -->
+        <section id="places-list">
+            <h2>Available Places</h2>
+            <div class="place-card">
+                <img src="https://cdn.mos.cms.futurecdn.net/GNMsSAqdJLDicwGiY6Yedd-768-80.jpg.webp" alt="Place Image" class="place-image">
+                <div class="place-details">
+                    <p class="place-name">Cozy Lakeside Cottage</p>
+                    <p class="place-price">$200 per night</p>
+                    <button class="details-button" onclick="location.href='place.html'">View Details</button>
+                </div>
+            </div>
+            <!-- Additional place cards can be dynamically populated -->
         </section>
     </main>
     <footer>
-        <p>© 2024 Holberton Bed and Breakfast</p>
+        <div id="footer-content">
+            <p>&copy; 2024 HBNB Inc. All rights reserved.</p>
+            <ul class="social-links">
+                <li><a href="#"><img src="static/images/facebook.png" alt="Facebook"></a></li>
+                <li><a href="#"><img src="static/images/twitter.png" alt="Twitter"></a></li>
+                <li><a href="#"><img src="static/images/instagram.png" alt="Instagram"></a></li>
+            </ul>
+        </div>
     </footer>
-        <script src="scripts.js"></script>
+    <script src="scripts.js"></script>
 </body>
 </html>

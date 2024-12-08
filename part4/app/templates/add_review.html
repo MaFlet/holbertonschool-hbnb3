@@ -7,28 +7,43 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <header>
+        <nav>
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="places.html" class="nav-link">Places</a>
+        </nav>
+    </header>
     <main>
-        <!-- Add something to idfentify the place you're reviewing -->
-        <form id="review-form">
+        <section id="review-section">
             <h2>Add a Review</h2>
-            <label for="place">Place Name:</label><br>
-            <input type="text" id="place" name="place" required><br><br>
-            <label for="review">Your Review:</label><br>
-            <textarea id="review" name="review" class="large-textarea" required></textarea ><br><br>
-            <label for="rating">Rating:</label>
-            <select id="rating" name="rating" required>
-                <!-- Options for rating -->
-                <option value="" disabled selected>Select a rating</option>
-                <option value="1">1 Star</option>
-                <option value="2">2 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="5">5 Stars</option>     
-            </select>
-            <br><br>
-            <button type="submit">Submit Review</button>
-        </form>
+            <form id="review-form" action="/submit_review" method="POST">
+                <!-- Field to identify the place being reviewed -->
+                <label for="place">Place:</label>
+                <input type="text" id="place" name="place" placeholder="Enter the name of the place" required>
+
+                <!-- Textarea for user review -->
+                <label for="review">Your Review:</label>
+                <textarea id="review" name="review" placeholder="Write your review here..." required></textarea>
+
+                <!-- Dropdown for rating -->
+                <label for="rating">Rating:</label>
+                <select id="rating" name="rating" required>
+                    <option value="" disabled selected>Select a rating</option>
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Poor</option>
+                    <option value="1">1 - Terrible</option>
+                </select>
+
+                <!-- Submit button -->
+                <button type="submit">Submit Review</button>
+            </form>
+        </section>
     </main>
+    <footer>
+        <p>&copy; 2024 HBNB. All rights reserved.</p>
+    </footer>
     <script src="scripts.js"></script>
 </body>
 </html>
