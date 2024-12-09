@@ -181,8 +181,14 @@ document.addEventListener('DOMContentLoaded', () => {
 ************************************/
 
   const reviewForm = document.getElementById('review-form');
+  const visitorForm = document.getElementById('visitor-form');
+  const ownerForm = document.getElementById('owner-form');
+  const visitorButton = document.getElementById('visitor-button');
+  const ownerButton = document.getElementById('owner-button');
   const token = checkAuthentication();
   const placeId = getPlaceIdFromURL();
+
+  const isRegistrationPage = visitorForm && ownerForm && visitorButton && ownerButton;
 
   if (reviewForm) {
       reviewForm.addEventListener('submit', async (event) => {
@@ -216,105 +222,130 @@ document.addEventListener('DOMContentLoaded', () => {
  /* ******* 
     Mary's code
     ********/
-    async function loginUser(email, password) {
-      const response = await fetch('http://127.0.0.1:5000/login', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, password })
-      });
-      if (!response.ok) {
-        throw new Error('Login Unsuccessful')
-      }
-      const data = await response.json();
-      return data;
-    //   if (response.ok) {
-    //     const data = await response.json();
-    //     document.cookie = `token=${data.access_token}; path=/`;
-    //     window.location.href = 'index.html';
-    // } else {
-    //     alert('Login failed: ' + response.statusText);
-    // }
-  }
-
-      if (loginForm) {
-          loginForm.addEventListener('submit', async (event) => {
-              event.preventDefault();
-          const formData = new FormData(loginForm);
-          const data = Object.fromEntries(formData);
-          const { email, password } = data;
-          if (!email || !password) {
-            window.location.href="login.html";
-          return;
-          }
-          try {
-            const result = await loginUser(email, password);
-            // Handle successful login
-            console.log('Login successful:', result);
-        } catch (error) {
-            console.error('Login error:', error);
-        }
-          });
-        }
-        function switchform(type) {
-          const visitorForm = document.getElementById('visitor-form');
-          const ownerForm = document.getElementById('owner-form');
-          const visitorButton = document.getElementById('visitor-button');
-          const ownerbutton = document.getElementById('owner-button');
-
-          if (type === 'visitor') {
+   if (isRegistrationPage) {
+    function switchForm(type) {
+        if (type === 'visitor') {
             visitorForm.style.display = 'block';
             ownerForm.style.display = 'none';
             visitorButton.classList.add('active');
-            ownerbutton.classList.remove('active');
-          } else {
+            ownerButton.classList.remove('active');
+        } else {
             visitorForm.style.display = 'none';
             ownerForm.style.display = 'block';
+            ownerButton.classList.add('active');
             visitorButton.classList.remove('active');
-            ownerbutton.classList.add('active');
-          }
         }
+    }
 
-        function validateForm(formID) {
-          const form = document.getElementById(formID);
-          const password = form.querySelector('input[type="password"]').value;
-          const confirmPassword = form.querySelector('input[name="confirmPassword"]').value;
+   switchForm('visitor');
 
-          if (password !== confirmPassword) {
+   visitorButton?.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchForm('visitor');
+   });
+
+   ownerButton?.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchForm('visitor');
+   });
+   
+   function validateForm(formID) {
+        const form = document.getElementById(formID);
+        if (!form) return false;
+
+        const password = form.querySelector('input[type="password"]')?.value;
+        const confirmPassword = form.querySelector('input[name="confirmPassword"]')?.value;
+
+        if (password !== confirmPassword) {
             alert('Passwords do not match');
             return false;
-          }
-          return true;
         }
-        document.getElementById('visitor-form').onsubmit = function(e) {
-          if (!validateForm('visitor-form')) {
-            e.preventDefault();
-          }
-        };
-        document.getElementById('owner-form').onsubmit = function(e) {
-          if (!validateForm('owner-form')) {
-            e.preventDefault();
-          }
-        }
+        return true;
+  }
 
-        function validateCoordinates() {
-          const lat = parseFloat(document.getElementById('latitude')).value;
-          const lng = parseFloat(document.getElementById('longitude')).value;
+  function validateCoordinates() {
+      const lat = parseFloat(document.getElementById('latitude')?.value || 0);
+      const lng = parseFloat(document.getElementById('longitude')?.value || 0);
 
-          if (lat < -90 || lat > 90) {
-            alert('Latitude must be between -90 and 90 degrees');
-            return false;
+      if (lat < -90 || lat > 90) {
+          alert('Latitude must be between -90 and 90 degrees');
+          return false;
+      }
+      if (lng < -180 || lng > 180) {
+          alert('Longitude must be between -180 and 180 degrees');
+          return false;
+      }
+      return true;
+  }
+
+  visitorForm?.addEventListener('submit', (e) => {
+    if (!validateForm('visitor-form')) {
+      e.preventDefault();
+    }
+  });
+
+  ownerForm?.addEventListener('submit', (e) => {
+    if (!validateForm('owner-form') || !validateCoordinates()) {
+      e.preventDefault();
+    }
+  });
+}
+
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+  loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData(loginForm);
+    const data = Object.fromEntries(formData);
+    const { email, password } = data;
+
+    if (!email || !password) {
+      alert('Please enter both email and password');
+      return;
+    }
+    try {
+        const response = await fetch('http://127.0.0.1:5000/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          });
+
+          if (!response.ok) {
+              throw new Error('Login Unsuccessful');
           }
-          if (lng < -180 || lng > 180) {
-            alert('Longitude must be between -180 and 180 degrees');
-            return false;
+          window.location.href = 'index.html';
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Login failed:' + error.message);
+      }
+  });
+  }
+  const adminRegister = document.getElementById('admin-register');
+
+  async function adminReg(fname, lname, email, password) {
+      const payload = {
+                      fname: fname,
+                      lname: lname,
+                      email: email,
+                      password: password
+      }
+      try {
+          const response = await fetch ('http://127.0.0.1:5000/admin', {
+              method: 'POST',
+              headers: {
+                  'content-type': 'application/json'
+              },
+              body: JSON.stringify( payload )
+          });
+
+          if (!response.ok) {
+              throw new Error('Failed registration');
           }
-          return true;
-        }
-        document.getElementById('owner-form').onsubmit = function(e) {
-          if (!validateForm('owner-form') || !validateCoordinates()) {
-            e.preventDefault();
-          }
-        }
+      except (error) {
+          console.error('Login error:', error)
+      }
+      }
+  }
 });

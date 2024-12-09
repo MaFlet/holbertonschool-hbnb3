@@ -1,19 +1,21 @@
 from flask import (
-    render_template, request, redirect,
+    Blueprint, render_template, request, redirect,
     url_for, session, send_from_directory,
-    Blueprint, flash
+    flash, current_app
 )
 from typing import Union
 from werkzeug.wrappers import Response
 from sqlalchemy.exc import SQLAlchemyError
 from functools import wraps
+import secrets
+from datetime import datetime
 from app import bcrypt
 from app.models.user import User
 from app.models.place import Place
 from app.persistence import db_session
 
-
 main = Blueprint('main', __name__)
+
 
 def login_required(f):
     """Check if user is logged in"""
@@ -22,6 +24,16 @@ def login_required(f):
         if 'user_id' not in session:
             flash('Please login first.', 'error')
             return redirect(url_for('main.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_required(f):
+    """Checking is user is admin"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('is_admin', False):
+            flash('Admin access required.', 'error')
+            return redirect(url_for('main.index'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -35,16 +47,18 @@ def register() -> str:
 @main.route('/register-visitor', methods=['POST'])
 def register_visitor() -> Response:
     """Handling visitor registration"""
+    print("Form data received:", request.form)
     try:
-        first_name = request.form.get('firstName')
-        last_name = request.form.get('lastName')
-        email = request.form.get('email')
+        first_name = request.form.get('firstName', '').strip()
+        last_name = request.form.get('lastName', '').strip()
+        email = request.form.get('email', '').lower().strip()
         password = request.form.get('password')
 
         if not all([first_name, last_name, email, password]):
             flash('All required fields must be filled.', 'error')
             return redirect(url_for('main.register'))
-        existing_user = db_session.query(User).filter(User.email == email).first()
+        
+        existing_user = db_session.query(User).filter(User._email == email).first()
         if existing_user:
             flash('Email already registered', 'error')
             return redirect(url_for('main.register'))
@@ -55,7 +69,6 @@ def register_visitor() -> Response:
             last_name=last_name,
             email=email,
             password=hashed_password,
-            user_type='visitor'
         )
         db_session.add(new_user)
         db_session.commit()
@@ -65,6 +78,7 @@ def register_visitor() -> Response:
     
     except SQLAlchemyError as e:
         db_session.rollback()
+        current_app.logger.error(f"Database error during visitor registration: {str(e)}")
         flash('Database error occurred. Please try again.', 'error')
         return redirect(url_for('main.register'))
     
@@ -72,23 +86,25 @@ def register_visitor() -> Response:
 def register_owner() -> Response:
     """Handling owner registration"""
     try:
-        first_name = request.form.get('firstName')
-        last_name = request.form.get('lastName')
-        email = request.form.get('email')
+        first_name = request.form.get('firstName', '').strip()
+        last_name = request.form.get('lastName', '').strip()
+        email = request.form.get('email', '').lower().strip()
         password = request.form.get('password')
 
-        place_name = request.form.get('placeName')
-        place_type = request.form.get('placeType')
+        title = request.form.get('placeName', '').strip()
+        description = request.form.get('placeType', '').strip()
         latitude = request.form.get('latitude')
         longitude = request.form.get('longitude')
+        price = request.form.get('price', 0.0)
 
-        if not all([first_name, last_name, email, password, place_name,
-                    place_type, latitude, longitude]):
+        if not all([first_name, last_name, email, password, title,
+                    description, latitude, longitude, price]):
             flash('All required fields must be filled.', 'error')
             return redirect(url_for('main.register'))
         try:
             latitude = float(latitude)
             longitude = float(longitude)
+            price = float(price)
             if not (-90 <= latitude <= 90) or not (-180 <= longitude <= 180):
                 flash('Invalid coordinates.', 'error')
                 return redirect(url_for('main.register'))
@@ -100,20 +116,21 @@ def register_owner() -> Response:
         if existing_user:
             flash('Email already registered.', 'error')
             return redirect(url_for('main.register'))
+        
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         new_user = User(
             first_name=first_name,
             last_name=last_name,
             email=email,
             password=hashed_password,
-            user_type='owner'
         )
         db_session.add(new_user)
         db_session.flush()
 
         new_place = Place(
-            name=place_name,
-            type=place_type,
+            title=title,
+            description=description,
+            price=price,
             latitude=latitude,
             longitude=longitude,
             owner_id=new_user.id
@@ -125,6 +142,7 @@ def register_owner() -> Response:
     
     except SQLAlchemyError as e:
         db_session.rollback()
+        current_app.logger.error(f"Database error during owner registration: {str(e)}")
         flash('Database error occurred. Please try again.', 'error')
         return redirect(url_for('main.register'))
     
@@ -136,7 +154,7 @@ def login() -> Union[str, Response]:
     
     if request.method == 'POST':
         try:
-            email = request.form.get('email')
+            email = request.form.get('email', '').lower().strip()
             password = request.form.get('password')
 
             if not email or not password:
@@ -148,11 +166,15 @@ def login() -> Union[str, Response]:
             if user and user.verify_password(password):
                 session['user_id'] = user.id
                 session['is_admin'] = user.is_admin
+                session['login_time'] = datetime.now().isoformat()
                 flash('Successfully logged in!', 'success')
                 return redirect(url_for('main.index'))
+            
             flash('Invalid email or password.', 'error')
             return render_template('login.html')
+        
         except SQLAlchemyError as e:
+            current_app.logger.error(f"Database error during login: {str(e)}")
             flash('Database error occurred. Please try again.', 'error')
             return render_template('login.html')
         
@@ -161,16 +183,17 @@ def login() -> Union[str, Response]:
 @main.route('/logout')
 def logout() -> Response:
     session.clear()
-    flash('Successfullt logged out!', 'success')
+    flash('Successfully logged out!', 'success')
     return redirect(url_for('main.index'))
 
 @main.route('/')
 def index() -> str:
-    print("flaskindex")
-    # is_authenticated = 'user_id' in session
-    # if is_authenticated:
-    #     user = db_session.query(User).filter(User.id == session['user_id']).first()
-    #     return send_from_directory('index.html',
-    #                            is_authenticated=is_authenticated,
-    #                            user=user)
-    return send_from_directory('templates', 'index.html')
+    """Handling index page"""
+    return render_template('index.html')
+
+@main.route('/admin')
+@login_required
+@admin_required
+def admin():
+    """Handling admin page"""
+    return render_template('admin.html')
