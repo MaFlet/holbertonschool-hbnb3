@@ -12,7 +12,7 @@ bcrypt = Bcrypt()
 def create_app():
     """ method used to create an app instance """
     app = Flask(__name__)
-    api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API')
+    api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API', doc='/swagger')
 
     CORS(app, supports_credentials=True)
     bcrypt.init_app(app)
