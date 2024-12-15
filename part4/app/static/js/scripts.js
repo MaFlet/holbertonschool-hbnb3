@@ -343,7 +343,7 @@ if (loginForm) {
           if (!response.ok) {
               throw new Error('Failed registration');
           }
-      except (error) {
+          except (error) {
           console.error('Login error:', error)
       }
       }
