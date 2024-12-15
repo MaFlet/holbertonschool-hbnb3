@@ -1,7 +1,7 @@
 from flask import (
     Blueprint, render_template, request, redirect,
     url_for, session, send_from_directory,
-    flash, current_app
+    flash, current_app, jsonify, session
 )
 from typing import Union
 from werkzeug.wrappers import Response
@@ -13,10 +13,12 @@ from app import bcrypt
 from app.models.user import User
 from app.models.place import Place
 from app.persistence import db_session
+import os
 
 app = Blueprint('app', __name__)
 
 
+# Serving static login 
 def login_required(f):
     """Check if user is logged in"""
     @wraps(f)
@@ -27,15 +29,67 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def admin_required(f):
-    """Checking is user is admin"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('is_admin', False):
-            flash('Admin access required.', 'error')
-            return redirect(url_for('app.index'))
-        return f(*args, **kwargs)
-    return decorated_function
+# def admin_required(f):
+#     """Checking is user is admin"""
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         if not session.get('is_admin', False):
+#             flash('Admin access required.', 'error')
+#             return redirect(url_for('app.index'))
+#         return f(*args, **kwargs)
+#     return decorated_function
+
+def serve_static_html(filename):
+    """Helper function to serve static HTML files"""
+    return send_from_directory(
+        os.path.join(current_app.root_path, 'templates'),
+        filename
+    )
+
+@app.route('/')
+def index():
+    """Handling index page"""
+    return send_from_directory('templates', 'index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Handles user login"""
+    if request.method == 'GET':
+        return send_from_directory('templates', 'login.html')
+    
+    if request.method == 'POST':
+        try:
+            data = request.get_json()
+            email = data.get('email', '').lower().strip()
+            password = data.get('password')
+
+            if not email or not password:
+                return jsonify({
+                    'message': 'Email and password are required.',
+                    'status': 'error'
+                }), 400
+
+            user = db_session.query(User).filter(User._email == email).first() # using User's model query
+
+            if user and user.verify_password(password):
+                session['user_id'] = user.id
+                session['is_admin'] = user.is_admin
+                return jsonify({
+                    'message': 'Successfully logged in!',
+                    'redirect': '/'
+                })
+            
+            return jsonify({
+                'message': 'Invalid email or password.',
+                'redirect': '/'
+            }), 401
+        
+        except SQLAlchemyError as e:
+            current_app.logger.error(f"Database error during login: {str(e)}")
+            return jsonify({
+                'message': 'Database error occurred. Please try again.',
+                'status': 'error'
+            }), 500
 
 @app.route('/register', methods=['GET'])
 def register() -> str:
@@ -146,39 +200,6 @@ def register_owner() -> Response:
         flash('Database error occurred. Please try again.', 'error')
         return redirect(url_for('app.register'))
     
-@app.route('/login', methods=['GET', 'POST'])
-def login() -> Union[str, Response]:
-    """Handles user login"""
-    if 'user_id' in session:
-        return redirect(url_for('app.index'))
-    
-    if request.method == 'POST':
-        try:
-            email = request.form.get('email', '').lower().strip()
-            password = request.form.get('password')
-
-            if not email or not password:
-                flash('Email and password are required.', 'error')
-                return render_template('login.html')
-
-            user = db_session.query(User).filter(User._email == email).first() # using User's model query
-
-            if user and user.verify_password(password):
-                session['user_id'] = user.id
-                session['is_admin'] = user.is_admin
-                session['login_time'] = datetime.now().isoformat()
-                flash('Successfully logged in!', 'success')
-                return redirect(url_for('app.index'))
-            
-            flash('Invalid email or password.', 'error')
-            return render_template('login.html')
-        
-        except SQLAlchemyError as e:
-            current_app.logger.error(f"Database error during login: {str(e)}")
-            flash('Database error occurred. Please try again.', 'error')
-            return render_template('login.html')
-        
-    return render_template('login.html')
 
 @app.route('/logout')
 def logout() -> Response:
@@ -186,14 +207,14 @@ def logout() -> Response:
     flash('Successfully logged out!', 'success')
     return redirect(url_for('index'))
 
-@app.route('/')
-def index():
-    """Handling index page"""
-    return render_template('index.html')
+# @app.route('/admin')
+# @login_required
+# @admin_required
+# def admin():
+#     """Handling admin page"""
+#     return render_template('admin.html')
 
-@app.route('/admin')
-@login_required
-@admin_required
-def admin():
-    """Handling admin page"""
-    return render_template('admin.html')
+# Explicit route for serving static files (fallback)
+@app.route('/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('templates', filename)
