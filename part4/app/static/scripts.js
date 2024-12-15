@@ -304,7 +304,7 @@ if (loginForm) {
       return;
     }
     try {
-        const response = await fetch('http://127.0.0.1:5000/login', {
+        const response = await fetch('http://127.0.0.1:5001/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -332,7 +332,7 @@ if (loginForm) {
                       password: password
       }
       try {
-          const response = await fetch ('http://127.0.0.1:5000/admin', {
+          const response = await fetch ('http://127.0.0.1:5001/admin', {
               method: 'POST',
               headers: {
                   'content-type': 'application/json'
