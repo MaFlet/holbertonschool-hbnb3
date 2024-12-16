@@ -3,7 +3,7 @@ from app.models.user import User
 import uuid
 from datetime import datetime
 from flask_bcrypt import Bcrypt
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Text, Table
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Text, Table, JSON
 from sqlalchemy.orm import relationship
 
 bcrypt = Bcrypt()
@@ -25,12 +25,13 @@ class Place(Base):
     _price = Column("price", Float, nullable=False)
     _latitude = Column("latitude", Float, nullable=False)
     _longitude = Column("longitude", Float, nullable=False)
+    image_url = Column(String(255), nullable=True)
     _owner_id = Column("owner_id", String(60), ForeignKey('users.id'), nullable=False)
     owner_r = relationship("User", back_populates="places_r")
     reviews_r = relationship("Review", back_populates="place_r")
     amenities = relationship("Amenity", secondary=place_amenity, back_populates="places")
 
-    def __init__(self, title, description, price, latitude, longitude, owner_id):
+    def __init__(self, title, description, price, latitude, longitude, owner_id, image_paths=None):
             if not all([title, description, price is not None,
                        latitude is not None, longitude is not None, owner_id]):
                 raise ValueError("Required attributes not specified!")
@@ -44,6 +45,7 @@ class Place(Base):
             self.latitude = latitude
             self.longitude = longitude
             self._owner_id = owner_id
+            self.image_paths = image_paths or []
 
     # --- Getters and Setters ---
     @property
@@ -140,10 +142,18 @@ class Place(Base):
         
         self._owner_id = value
 
+
+    # --- Methods ---
     @property
     def owner(self):
         """Convinience property to access owner relationship"""
         return self.owner_r
+    
+    def set_image_paths(self, paths):
+        self.image_paths = json.dumps(paths)
+
+    def get_image_paths(self):
+        return json.loads(self.image_paths) if self.image_paths else []
 
     # --- Methods ---
     # def save(self):

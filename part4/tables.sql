@@ -29,6 +29,7 @@ CREATE TABLE `places` (
   `price` float NOT NULL,
   `latitude` float NOT NULL,
   `longitude` float NOT NULL,
+  `image_paths` JSON DEFAULT NULL,
   `owner_id` varchar(36) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `owner_id` (`owner_id`),

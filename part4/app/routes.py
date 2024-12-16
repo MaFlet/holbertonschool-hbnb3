@@ -1,3 +1,4 @@
+import uuid
 from flask import (
     Blueprint, render_template, request, redirect,
     url_for, session, send_from_directory,
@@ -5,6 +6,7 @@ from flask import (
 )
 from typing import Union
 from werkzeug.wrappers import Response
+from werkzeug.utils import secure_filename
 from sqlalchemy.exc import SQLAlchemyError
 from functools import wraps
 import secrets
@@ -16,6 +18,8 @@ import os
 
 app = Blueprint('app', __name__)
 
+UPLOAD_FOLDER = 'app/static/images'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Serving static login 
 def login_required(f):
@@ -44,6 +48,12 @@ def serve_static_html(filename):
         os.path.join(current_app.root_path, 'templates'),
         filename
     )
+
+def allowed_file(filename):
+    """Check if the file extension is allowed"""
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -164,14 +174,26 @@ def register_owner() -> Response:
         data = request.form
         files = request.files.getlist('photos')
 
+        # Validate file uploads
+        if not files or files[0].filename == '':
+            flash('At least one image is required', 'error')
+            return redirect(url_for('app.register'))
+
         # Process and save images
         image_paths = []
         for file in files:
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                # Create a unique filename to avoid conflicts
+                unique_filename = f"{uuid.uuid4()}_{filename}"
+                file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename)
                 file.save(file_path)
-                image_paths.append(file_path)
+                # Store the path relative to static folder
+                relative_path = f"/static/images/{unique_filename}"
+                image_paths.append(relative_path)
+            else:
+                flash('Invalid file type. Allowed types are: pnj, jpg, jpeg, gif', 'error')
+                return redirect(url_for('app.register'))
                 
         # Get user data
         first_name = request.form.get('firstName', '').strip()
@@ -182,9 +204,9 @@ def register_owner() -> Response:
         # Get place data
         title = request.form.get('placeName', '').strip()
         description = request.form.get('placeType', '').strip()
-        latitude = request.form.get('latitude')
-        longitude = request.form.get('longitude')
-        price = request.form.get('price', 0.0)
+        price = request.form.get('price', type=float)
+        latitude = request.form.get('latitude', type=float)
+        longitude = request.form.get('longitude', type=float)
 
         if not all([first_name, last_name, email, password, title,
                     description, latitude, longitude, price]):
@@ -214,7 +236,7 @@ def register_owner() -> Response:
             db_session.add(new_user)
             db_session.flush() # Get the user ID without committing
 
-            # Create new place
+            # Create new place with images
             new_place = Place(
                 title=title,
                 description=description,
@@ -223,6 +245,7 @@ def register_owner() -> Response:
                 longitude=longitude,
                 owner_id=new_user.id
             )
+            new_place.set_image_paths(image_paths)
 
             new_user.add_place(new_place)
             db_session.add(new_place)
@@ -265,7 +288,6 @@ def place_details(place_id):
         current_app.logger.error(f"Database error: {str(e)}")
         flash('Error loading place details', 'error')
         return redirect(url_for('app.index'))
-    
 
 @app.route('/logout')
 def logout() -> Response:

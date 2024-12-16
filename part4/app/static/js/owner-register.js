@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/register-owner', {
+            const response = await fetch('/register-owner', {
                 method: 'POST',
                 body: formData
             });
