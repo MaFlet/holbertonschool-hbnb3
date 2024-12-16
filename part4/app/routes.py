@@ -160,6 +160,19 @@ def register_visitor() -> Response:
 def register_owner() -> Response:
     """Handling owner registration"""
     try:
+        # Getting form data
+        data = request.form
+        files = request.files.getlist('photos')
+
+        # Process and save images
+        image_paths = []
+        for file in files:
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                image_paths.append(file_path)
+                
         # Get user data
         first_name = request.form.get('firstName', '').strip()
         last_name = request.form.get('lastName', '').strip()
