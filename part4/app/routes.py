@@ -110,6 +110,13 @@ def register() -> str:
         return redirect(url_for('app.index'))
     return render_template('register.html')
 
+@app.route('/owner-register', methods=['GET'])
+def owner_register() -> str:
+    """Handle displaying owner registration page"""
+    if 'user_id' in session:
+        return redirect(url_for('app.index'))
+    return render_template('owner-register.html')
+
 @app.route('/register-visitor', methods=['POST'])
 def register_visitor() -> Response:
     """Handling visitor registration"""
@@ -221,6 +228,21 @@ def register_owner() -> Response:
         current_app.logger.error(f"Database error during owner registration: {str(e)}")
         flash('Database error occurred. Please try again.', 'error')
         return redirect(url_for('app.register'))
+    
+@app.route('/place/<place_id>')
+def place_details(place_id):
+    """Handle displaying place details page"""
+    try:
+        # Get place details from database
+        place = db_session.query(Place).get(place_id)
+        if not place:
+            flash('Place not found', 'error')
+            return redirect(url_for('app.index'))
+        return render_template('place.html', place=place)
+    except SQLAlchemyError as e:
+        current_app.logger.error(f"Database error: {str(e)}")
+        flash('Error loading place details', 'error')
+        return redirect(url_for('app.index'))
     
 
 @app.route('/logout')
