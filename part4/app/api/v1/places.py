@@ -1,3 +1,4 @@
+from flask import request, jsonify, current_app
 from flask_restx import Namespace, Resource, fields
 # from app.services.facade import HBnBFacade
 from app.models.place import Place
@@ -86,16 +87,26 @@ class PlaceList(Resource):
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
-        """Retrieve a list of all places"""
+        """Retrieve a list of all places and filter by max price"""
+        # Get max_price from query parameters
+        max_price = request.args.get('max_price', type=float)
+
+        # Get all places
         all_places = facade.get_all_places()
         output = []
 
         for place in all_places:
+            # If max_price is provided, filter places
+            if max_price is not None and place.price > max_price:
+                continue
+
             output.append({
                 'id': str(place.id),
                 'title': place.title,
+                'price': place.price,
                 'latitude': place.latitude,
                 'longitude': place.longitude,
+                'image_url': place.image_url 
             })
 
         return output, 200
@@ -220,3 +231,4 @@ class PlaceAmenityLink(Resource):
         except Exception as e:
             db_session.rollback()
             return {"error": str(e)}, 400
+        

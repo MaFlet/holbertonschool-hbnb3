@@ -3,6 +3,7 @@ from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from app.config import config
+import os
 
 
 bcrypt = Bcrypt()
@@ -15,6 +16,10 @@ def create_app(config_name='default'):
                 static_folder='static',
                 template_folder='templates')
     
+    #Upload images configurations
+    app.config['UPLOAD_FOLDER'] = 'app/static/uploads'
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
 
     app.config.from_object(config[config_name])
     app.config['DEBUG'] = True
@@ -49,12 +54,12 @@ def create_app(config_name='default'):
         from app.api.v1.reviews import api as reviews_ns
 
  
-        api.add_namespace(users_ns, path='/api/v1/users')
-        api.add_namespace(amenities_ns, path='/api/v1/amenities')
-        api.add_namespace(places_ns, path='/api/v1/places')
-        api.add_namespace(reviews_ns, path='/api/v1/reviews')
+        api.add_namespace(users_ns, path='/users')
+        api.add_namespace(amenities_ns, path='/amenities')
+        api.add_namespace(places_ns, path='/places')
+        api.add_namespace(reviews_ns, path='/reviews')
 
-        app.register_blueprint(api_bp, url_prefix='/api')
+        app.register_blueprint(api_bp, url_prefix='/api/v1')
     except ImportError as e:
         print(f"Warning: Some API endpoints might not be available: {e}")
 
