@@ -9,7 +9,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from functools import wraps
 import secrets
 from datetime import datetime
-from app import bcrypt
 from app.models.user import User
 from app.models.place import Place
 from app.persistence import db_session
@@ -49,48 +48,61 @@ def serve_static_html(filename):
 @app.route('/')
 def index():
     """Handling index page"""
-    return send_from_directory('templates', 'index.html')
+    return render_template('index.html')
+    # except Exception as e:
+    #     current_app.logger.error(f"Error serving index page: {str(e)}")
+    #     return "Error loading page", 500
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Handles user login"""
     if request.method == 'GET':
-        return send_from_directory('templates', 'login.html')
+        return render_template('login.html')
+        # except Exception as e:
+        #     current_app.logger.error(f"Error serving login page: {str(e)}")
+        #     return "Error loading login page", 500
     
     if request.method == 'POST':
         try:
-            data = request.get_json()
-            email = data.get('email', '').lower().strip()
-            password = data.get('password')
+            # Handle both JSON and form data
+            if request.is_json:
+                data = request.get_json()
+                email = data.get('email', '').lower().strip()
+                password = data.get('password')
+            else:
+                email = request.form.get('email', '').lower().strip()
+                password = request.form.get('password')
 
             if not email or not password:
-                return jsonify({
-                    'message': 'Email and password are required.',
-                    'status': 'error'
-                }), 400
+                message = 'Email and password are required.'
+                return (jsonify({'message': message, 'status': 'error'}), 400) if request.is_json else (
+                    render_template('login.html', error=message))
 
             user = db_session.query(User).filter(User._email == email).first() # using User's model query
 
             if user and user.verify_password(password):
                 session['user_id'] = user.id
                 session['is_admin'] = user.is_admin
-                return jsonify({
+                session['login_time'] = datetime.now().isoformat()
+
+                if request.is_json:
+                    return jsonify({
                     'message': 'Successfully logged in!',
                     'redirect': '/'
                 })
+                flash('Successfully logged in!', 'success')
+                return redirect(url_for('app.index'))
             
-            return jsonify({
-                'message': 'Invalid email or password.',
-                'redirect': '/'
-            }), 401
+            message = 'Invalid email or password.'
+            return (jsonify({'message': message, 'status': 'error'}), 500) if request.is_json else (
+                render_template('login.html', error=message))
         
         except SQLAlchemyError as e:
             current_app.logger.error(f"Database error during login: {str(e)}")
-            return jsonify({
-                'message': 'Database error occurred. Please try again.',
-                'status': 'error'
-            }), 500
-
+            message = 'Database error occurred. Please try again.'
+            return (jsonify({'message': message, 'status': 'error'}), 500) if request.is_json else (
+                render_template('login.html', error=message))
+        
 @app.route('/register', methods=['GET'])
 def register() -> str:
     """Handling in displaying registration page"""
@@ -101,7 +113,6 @@ def register() -> str:
 @app.route('/register-visitor', methods=['POST'])
 def register_visitor() -> Response:
     """Handling visitor registration"""
-    print("Form data received:", request.form)
     try:
         first_name = request.form.get('firstName', '').strip()
         last_name = request.form.get('lastName', '').strip()
@@ -112,23 +123,25 @@ def register_visitor() -> Response:
             flash('All required fields must be filled.', 'error')
             return redirect(url_for('app.register'))
         
-        existing_user = db_session.query(User).filter(User._email == email).first()
-        if existing_user:
-            flash('Email already registered', 'error')
-            return redirect(url_for('app.register'))
-        
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = User(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            password=hashed_password,
-        )
-        db_session.add(new_user)
-        db_session.commit()
+        try:
+            # Create new user - the model will handle validation
+            new_user = User(
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                password=password,
+                is_admin=False
+            )
+            # Add to database
+            db_session.add(new_user)
+            db_session.commit()
 
-        flash('Registration successful! Please login.', 'success')
-        return redirect(url_for('app.login'))
+            flash('Registration successful! Please login.', 'success')
+            return redirect(url_for('app.login'))
+        
+        except ValueError as e:
+            flash(str(e), 'error')
+            return redirect(url_for('app.register'))
     
     except SQLAlchemyError as e:
         db_session.rollback()
@@ -140,11 +153,13 @@ def register_visitor() -> Response:
 def register_owner() -> Response:
     """Handling owner registration"""
     try:
+        # Get user data
         first_name = request.form.get('firstName', '').strip()
         last_name = request.form.get('lastName', '').strip()
         email = request.form.get('email', '').lower().strip()
         password = request.form.get('password')
 
+        # Get place data
         title = request.form.get('placeName', '').strip()
         description = request.form.get('placeType', '').strip()
         latitude = request.form.get('latitude')
@@ -166,33 +181,40 @@ def register_owner() -> Response:
             flash('Invalid coordinate format.', 'error')
             return redirect(url_for('app.register'))
         
-        existing_user = db_session.query(User).filter(User._email == email).first()
-        if existing_user:
-            flash('Email already registered.', 'error')
-            return redirect(url_for('app.register'))
-        
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = User(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            password=hashed_password,
-        )
-        db_session.add(new_user)
-        db_session.flush()
+        try:
+            # Create new user - the model will handle validation and password hashing
+            new_user = User(
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                password=password,
+                is_admin=False
+            )
 
-        new_place = Place(
-            title=title,
-            description=description,
-            price=price,
-            latitude=latitude,
-            longitude=longitude,
-            owner_id=new_user.id
-        )
-        db_session.add(new_place)
-        db_session.commit()
-        flash('Registration successful! Please log in again.', 'success')
-        return redirect(url_for('app.login'))
+            db_session.add(new_user)
+            db_session.flush() # Get the user ID without committing
+
+            # Create new place
+            new_place = Place(
+                title=title,
+                description=description,
+                price=price,
+                latitude=latitude,
+                longitude=longitude,
+                owner_id=new_user.id
+            )
+
+            new_user.add_place(new_place)
+            db_session.add(new_place)
+            db_session.commit()
+
+            flash('Registration successful! Please login.', 'success')
+            return redirect(url_for('app.login'))
+        
+        except ValueError as e:
+            db_session.rollback()
+            flash(str(e), 'error')
+            return redirect(url_for('app.register'))
     
     except SQLAlchemyError as e:
         db_session.rollback()
@@ -217,4 +239,9 @@ def logout() -> Response:
 # Explicit route for serving static files (fallback)
 @app.route('/<path:filename>')
 def serve_static(filename):
-    return send_from_directory('templates', filename)
+    """Serve static files"""
+    try:
+        return send_from_directory('static', filename)
+    except Exception as e:
+        current_app.logger.error(f"Error serving static file {filename}: {str(e)}")
+        return "File not found", 404

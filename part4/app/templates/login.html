@@ -5,60 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="icon" type="image/png" href="holbertonschool-hbnb3/part4/app/static/images/icon.png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
     <header>
         <img src="../static/images/vacationrental.png" alt="Making you feel at home,book your vacation home now" class="logo">
     </header>
     <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
+        <a href="/">Home</a>
+        <a href="/login">Login</a>
     </nav>
     <main>
         <div class="login-form-container">
-            <form class="login-form" action="/login" method="POST">
-            <div class="header">
-            <h2>Login to Your Account</h2>
-            <p>Please enter your credentials to login</p>
-            </div>
-            <div class="form-group">
-                <label for="login-email">Email</label>
-                <input
-                    type="email"
-                    id="login-email"
-                    name="email"
-                    required
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                >
-            </div>
-            <br>
-            <div class="form-group">
-                <label for="login-password">Password</label>
-                <input
-                    type="password"
-                    id="login-password"
-                    name="password"
-                    required
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                >
-            </div>
-            <br>
+            <div id="flash-messages"></div>
+            <form class="login-form" id="loginForm">
+                <div class="header">
+                    <h2>Login to Your Account</h2>
+                    <p>Please enter your credentials to login</p>
+                </div>
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input
+                        type="email"
+                        id="login-email"
+                        name="email"
+                        required
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                    >
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input
+                        type="password"
+                        id="login-password"
+                        name="password"
+                        required
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                    >
+                </div>
+                <br>
                 <button type="submit">Log In</button>
-            <br>
-            <div class="toggle-form">
-                Don't have an account?
-                <a href="register.html" class="toggle-button" id="register-link">Register</a>
-            </div>
+                <br>
+                <div class="toggle-form">
+                    Don't have an account?
+                    <a href="/register" class="toggle-button">Register</a>
+                </div>
             </form>
         </div>
     </main>
     <footer>
-        <p>© 2024 Holberton Bed and Breakfast</p>
+        <div id="footer-content">
+            <p>&copy; 2024 HBNB Inc. All rights reserved.</p>
+            <ul class="social-links">
+                <li><a href="#"><img src=".../static/images/facebook.png" alt="Facebook"></a></li>
+                <li><a href="#"><img src=".../static/images/twitter.png" alt="Twitter"></a></li>
+                <li><a href="#"><img src=".../static/images/instagram.png" alt="Instagram"></a></li>
+            </ul>
+        </div>
     </footer>
     
-    <script src="scripts.js"></script>
+    <script src="/static/js/login.js"></script>
 </body>
 </html>
