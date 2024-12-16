@@ -15,10 +15,20 @@ engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(USER, PWD, HOST, DB)
 session_factory = sessionmaker(
     bind=engine, expire_on_commit=False)
 session = scoped_session(session_factory)
-
 db_session = session()
 
-from app.models.user import User
-from app.models.place import Place
+def init_db():
+    """Create tables"""
+    from app.models.user import User
+    from app.models.place import Place
+    Base.metadata.create_all(engine)
 
-Base.metadata.create_all(engine)
+# # Import models after Base is defined
+# from app.models.user import User
+# from app.models.place import Place
+
+# # Create tables
+# Base.metadata.create_all(engine)
+
+# Make setup_database available when importing from this module
+__all__ = ['Base', 'db_session', 'engine', 'init_db']
