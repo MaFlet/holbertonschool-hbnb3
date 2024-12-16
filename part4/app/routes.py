@@ -229,6 +229,15 @@ def register_owner() -> Response:
         flash('Database error occurred. Please try again.', 'error')
         return redirect(url_for('app.register'))
     
+@app.route('/place')
+def place():
+    """Handle displaying place details page"""
+    try:
+        return send_from_directory('templates', 'place.html')
+    except Exception as e:
+        current_app.logger.error(f"Error serving place page: {str(e)}")
+        return "Error loading page", 500
+    
 @app.route('/place/<place_id>')
 def place_details(place_id):
     """Handle displaying place details page"""
