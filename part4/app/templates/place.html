@@ -236,18 +236,20 @@ footer {
                 <!-- Updated: Amenities dynamically appended -->
             </ul>
         </section>
-
         <!-- Section for displaying user reviews -->
-        <!-- <section class="reviews" id="reviews-section">
+        <section class="reviews" id="reviews-section">
             <h2>Reviews</h2>
-            <div id="reviews-container"> -->
+            <div id="reviews-container">
+                <p>
+                    {{ reviews.text }}
+                  </p>
                 <!-- Reviews dynamically populated -->
-            <!-- </div>
-        </section> -->
+            </div>
+        </section>
 
         <!-- Section for adding a new review -->
         <!-- <section id="add-review">
-            <h2>Add Your Review</h2> -->
+            <h2>Add Your Review</h2>
             <!-- Form will only be visible if authenticated -->
             <!-- <form id="review-form" method="POST">
                 <label for="review-text">Your Review:</label>
@@ -266,19 +268,28 @@ footer {
                 <button type="submit">Submit Review</button>
             </form>
         </section> -->
+
+        <section class="reviews" id="reviews-section">
+            <h2>Reviews</h2>
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-card">
+                    <p class="review-text">{{ review.text }}</p>
+                    <div class="review-meta">
+                        <p class="review-rating">Rating: {{ review.rating }}/5</p>
+                        <p class="review-author">By: {{ review.user.first_name }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No reviews yet</p>
+            {% endif %}
+        </section>
         <div class="add-review-button">
             <button onclick="window.location.href='/add-review/' + window.location.pathname.split('/').pop()">
                 Add a Review
             </button>
-        </div>
-    
-        <!-- Reviews display section -->
-        <section class="reviews" id="reviews-section">
-            <h2>Reviews</h2>
-            <div id="reviews-container">
-                <!-- Reviews will be populated here -->
-            </div>
-        </section>     
+        </div> 
     </main>
     <footer>
         <div class="footer-content">
@@ -292,4 +303,38 @@ footer {
     </footer>
     <script src="/static/js/place.js"></script>
 </body>
+<script>
+    document.getElementById('review-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        // Gather form data
+        const formData = new FormData(this);
+        const data = {
+            place: formData.get('place'),
+            review: formData.get('review'),
+            rating: formData.get('rating')
+        };
+        // Send data to Flask-RESTx endpoint
+        fetch('/submit_review', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+            // Optionally, you can display a success message or redirect the user
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            // Optionally, display an error message to the user
+        });
+    });
+</script>
 </html>

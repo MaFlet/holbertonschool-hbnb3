@@ -275,6 +275,24 @@ def place():
         current_app.logger.error(f"Error serving place page: {str(e)}")
         return "Error loading page", 500
     
+# @app.route('/place/<place_id>')
+# def place_details(place_id):
+#     """Handle displaying place details page"""
+#     try:
+#         # Get place details from database
+#         place = db_session.query(Place).get(place_id)
+#         if not place:
+#             flash('Place not found', 'error')
+#             return redirect(url_for('app.index'))
+#          # Get reviews for this place
+#         reviews = db_session.query(Review).filter_by(place_id=place_id).all()
+#          # Pass both place and reviews to the template
+#         return render_template('place.html', place=place, reviews=reviews)
+#     except SQLAlchemyError as e:
+#         current_app.logger.error(f"Database error: {str(e)}")
+#         flash('Error loading place details', 'error')
+#         return redirect(url_for('app.index'))
+
 @app.route('/place/<place_id>')
 def place_details(place_id):
     """Handle displaying place details page"""
@@ -284,7 +302,12 @@ def place_details(place_id):
         if not place:
             flash('Place not found', 'error')
             return redirect(url_for('app.index'))
-        return render_template('place.html', place=place)
+        
+        # Get reviews for this place
+        reviews = db_session.query(Review).filter_by(place_id=place_id).all()
+        
+        # Pass both place and reviews to the template
+        return render_template('place.html', place=place, reviews=reviews)
     except SQLAlchemyError as e:
         current_app.logger.error(f"Database error: {str(e)}")
         flash('Error loading place details', 'error')
@@ -328,16 +351,16 @@ def add_review_page(place_id):
 def place_reviews(place_id):
     if request.method == 'GET':
         reviews = db_session.query(Review).filter_by(place_id=place_id).all()
-        return jsonify([{
-            'id': review.id,
-            'text': review.text,
-            'rating': review.rating,
-            'user': {
-                'first_name': review.user.first_name,
-                'last_name': review.user.last_name
-            }
-        } for review in reviews])
-    
+        # return jsonify([{
+        #     'id': review.id,
+        #     'text': review.text,
+        #     'rating': review.rating,
+        #     'user': {
+        #         'first_name': review.user.first_name,
+        #         'last_name': review.user.last_name
+        #     }
+        # } for review in reviews])
+        return jsonify(reviews=reviews)
     elif request.method == 'POST':
         data = request.get_json()
         new_review = Review(
