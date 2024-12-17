@@ -231,4 +231,4 @@ class PlaceAmenityLink(Resource):
         except Exception as e:
             db_session.rollback()
             return {"error": str(e)}, 400
-        
+       

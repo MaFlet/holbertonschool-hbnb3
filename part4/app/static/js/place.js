@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Get place ID from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const placeId = urlParams.get('id');
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const placeId = urlParams.get('id');
+    const placeId = window.location.pathname.split('/').pop();
 
     // Show/hide review form based on login status
     const isLoggedIn = !!localStorage.getItem('user_id');
@@ -48,12 +49,28 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadPlaceDetails() {
         try {
             const response = await fetch(`/api/v1/places/${placeId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Response status: ${response.status} ${response.statusText}`)
+            }
             const place = await response.json();
-            
+
+            // Updating place details
             document.getElementById('place-title').textContent = place.title;
             document.getElementById('host-name').textContent = `${place.owner.first_name} ${place.owner.last_name}`;
             document.getElementById('place-price').textContent = place.price;
             document.getElementById('place-description').textContent = place.description;
+
+            //   // Update images if they exist
+            //   if (place.image_paths && place.image_paths.length > 0) {
+            //     const imageGallery = document.querySelector('.image-gallery');
+            //     imageGallery.innerHTML = ''; // Clear existing images
+            //     place.image_paths.forEach(imagePath => {
+            //         const img = document.createElement('img');
+            //         img.src = imagePath;
+            //         img.alt = 'Place Image';
+            //         imageGallery.appendChild(img);
+            //     });
+            // }
 
             // Load amenities
             const amenitiesList = document.getElementById('place-amenities');
@@ -72,23 +89,30 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadReviews() {
         try {
             const response = await fetch(`/api/v1/places/${placeId}/reviews`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Response status: ${response.status} ${response.statusText}`)
+            }
             const reviews = await response.json();
             
             const reviewsContainer = document.getElementById('reviews-container');
-            reviewsContainer.innerHTML = '';
+            reviewsContainer.innerHTML = ''; // Clearing exisiting reviews
             
             reviews.forEach(review => {
                 const reviewCard = document.createElement('div');
                 reviewCard.className = 'review-card';
                 reviewCard.innerHTML = `
-                    <p>${review.text}</p>
-                    <p>Rating: ${review.rating}/5</p>
-                    <p>By: ${review.user.first_name}</p>
+                    <p class="review-text">${review.text}</p>
+                    <div class="review-meta">
+                        <p class="review-rating">Rating: ${review.rating}/5</p>
+                        <p class="review-button">By: ${review.user.first_name} ${review.user.last_name}</p>
+                    </div>
                 `;
                 reviewsContainer.appendChild(reviewCard);
             });
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error loading reviews:', error);
+            document.getElementById('review-container').innerHTML =
+            '<p class="error"> Error loading reviews. Please try again later.</p>';
         }
     }
 

@@ -26,7 +26,7 @@ class Place(Base):
     _price = Column("price", Float, nullable=False)
     _latitude = Column("latitude", Float, nullable=False)
     _longitude = Column("longitude", Float, nullable=False)
-    image_paths = Column(JSON, nullable=True)
+    image_paths = Column(JSON)
     _owner_id = Column("owner_id", String(60), ForeignKey('users.id'), nullable=False)
     owner_r = relationship("User", back_populates="places_r")
     reviews_r = relationship("Review", back_populates="place_r")
@@ -151,12 +151,12 @@ class Place(Base):
         return self.owner_r
     
     def set_image_paths(self, paths):
-        self.image_paths = json.dumps(paths)
+        """Set image paths, ensuring proper JSON format"""
+        self.image_paths = paths if isinstance(paths, list) else []
 
     def get_image_paths(self):
-        if self.image_paths:
-            return json.loads(self.image_paths)
-        return []
+        """Return the image paths as a list"""
+        return self.image_paths if self.image_paths else []
 
     # --- Methods ---
     # def save(self):
