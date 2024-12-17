@@ -9,13 +9,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             const places = await response.json();
             
             placesList.innerHTML = '<h2>Available Places</h2>';
-            
+
+            // place card creation
             places.forEach(place => {
                 const placeCard = document.createElement('div');
                 placeCard.className = 'place-card';
+                
+                // Get the first image from image_paths array
+                const imagePath = place.image_paths && place.image_paths.lenght > 0
+                    ? place.image_paths[0]
+                    : 'https://cdn.mos.cms.futurecdn.net/GNMsSAqdJLDicwGiY6Yedd-768-80.jpg.webp';
+
                 placeCard.innerHTML = `
-                    <img src="${place.image_url || 'https://cdn.mos.cms.futurecdn.net/GNMsSAqdJLDicwGiY6Yedd-768-80.jpg.webp'}" 
-                         alt="${place.title}" class="place-image">
+                    <img src="${imagePath}" alt="${place.title}" class="place-image">
                     <div class="place-details">
                         <p class="place-name">${place.title}</p>
                         <p class="place-price">$${place.price} per night</p>

@@ -1,6 +1,7 @@
 from app.persistence import Base
 from app.models.user import User
 import uuid
+import json
 from datetime import datetime
 from flask_bcrypt import Bcrypt
 from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Text, Table, JSON
@@ -25,7 +26,7 @@ class Place(Base):
     _price = Column("price", Float, nullable=False)
     _latitude = Column("latitude", Float, nullable=False)
     _longitude = Column("longitude", Float, nullable=False)
-    image_url = Column(String(255), nullable=True)
+    image_paths = Column(JSON, nullable=True)
     _owner_id = Column("owner_id", String(60), ForeignKey('users.id'), nullable=False)
     owner_r = relationship("User", back_populates="places_r")
     reviews_r = relationship("Review", back_populates="place_r")
@@ -153,7 +154,9 @@ class Place(Base):
         self.image_paths = json.dumps(paths)
 
     def get_image_paths(self):
-        return json.loads(self.image_paths) if self.image_paths else []
+        if self.image_paths:
+            return json.loads(self.image_paths)
+        return []
 
     # --- Methods ---
     # def save(self):
