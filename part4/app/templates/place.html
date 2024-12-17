@@ -240,22 +240,19 @@ footer {
         <section class="reviews" id="reviews-section">
             <h2>Reviews</h2>
             <div id="reviews-container">
-                <p>
-                    {{ reviews.text }}
-                  </p>
                 <!-- Reviews dynamically populated -->
             </div>
         </section>
 
         <!-- Section for adding a new review -->
-        <!-- <section id="add-review">
+        <section id="add-review">
             <h2>Add Your Review</h2>
             <!-- Form will only be visible if authenticated -->
-            <!-- <form id="review-form" method="POST">
+            <form id="review-form" method="POST">
                 <label for="review-text">Your Review:</label>
-                <textarea id="review-text" name="review-text" placeholder="Write your review here..." required></textarea> -->
+                <textarea id="review-text" name="review-text" placeholder="Write your review here..." required></textarea>
 
-                <!-- <label for="review-rating">Rating:</label>
+                <label for="review-rating">Rating:</label>
                 <select id="review-rating" name="review-rating" required>
                     <option value="" disabled selected>Select a rating</option>
                     <option value="1">1 - Poor</option>
@@ -267,24 +264,8 @@ footer {
 
                 <button type="submit">Submit Review</button>
             </form>
-        </section> -->
-
-        <section class="reviews" id="reviews-section">
-            <h2>Reviews</h2>
-            {% if reviews %}
-                {% for review in reviews %}
-                <div class="review-card">
-                    <p class="review-text">{{ review.text }}</p>
-                    <div class="review-meta">
-                        <p class="review-rating">Rating: {{ review.rating }}/5</p>
-                        <p class="review-author">By: {{ review.user.first_name }}</p>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <p>No reviews yet</p>
-            {% endif %}
         </section>
+
         <div class="add-review-button">
             <button onclick="window.location.href='/add-review/' + window.location.pathname.split('/').pop()">
                 Add a Review

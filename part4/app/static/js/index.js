@@ -1,4 +1,42 @@
 document.addEventListener('DOMContentLoaded', async () => {
+     // Check login status and update visibility
+     function updateLoginVisibility() {
+        const loginLink = document.getElementById('login-link');
+        const logoutLink = document.getElementById('logout-link');
+        const isLoggedIn = localStorage.getItem('user_id');
+
+        if (loginLink && logoutLink) {
+            if (isLoggedIn) {
+                loginLink.style.display = 'none';
+                logoutLink.style.display = 'block';
+            } else {
+                loginLink.style.display = 'block';
+                logoutLink.style.display = 'none';
+            }
+        }
+    }
+
+     // Handle logout
+     function setupLogout() {
+        const logoutLink = document.getElementById('logout-link');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    const response = await fetch('/logout');
+                    if (response.ok) {
+                        localStorage.removeItem('user_id');
+                        window.location.href = '/';
+                    } else {
+                        console.error('Logout failed');
+                    }
+                } catch (error) {
+                    console.error('Error during logout:', error);
+                }
+            });
+        }
+    }
+
     // Function to load and display places
     async function loadPlaces() {
         const placesList = document.getElementById('places-list');
@@ -83,6 +121,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Initialize the page
+    updateLoginVisibility();
+    setupLogout();
     await loadPlaces();
     setupPriceFilter();
 });
