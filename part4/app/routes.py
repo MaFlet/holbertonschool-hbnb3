@@ -13,6 +13,7 @@ import secrets
 from datetime import datetime
 from app.models.user import User
 from app.models.place import Place
+from app.models.review import Review
 from app.persistence import db_session
 import os
 
@@ -288,12 +289,82 @@ def place_details(place_id):
         current_app.logger.error(f"Database error: {str(e)}")
         flash('Error loading place details', 'error')
         return redirect(url_for('app.index'))
+    
+@app.route('/api/v1/places/')
+def get_places():
+    try:
+        places = db_session.query(Place).all()
+        return jsonify([{
+            'id': place.id,
+            'title': place.title,
+            'description': place.description,
+            'price': place.price,
+            'latitude': place.latitude,
+            'longitude': place.longitude,
+            'image_paths': place.get_image_paths(),
+            'owner_id': place.owner_id
+        } for place in places])
+    except Exception as e:
+        current_app.logger.error(f"Error fetching places: {str(e)}")
+        return jsonify({'error': 'Error fetching places'}), 500
 
 @app.route('/logout')
 def logout() -> Response:
     session.clear()
     flash('Successfully logged out!', 'success')
     return redirect(url_for('index'))
+
+@app.route('/add-review/<string:place_id>')
+@login_required  # Make sure user is logged in
+def add_review_page(place_id):
+    place = db_session.query(Place).get(place_id)
+    if not place:
+        flash('Place not found', 'error')
+        return redirect(url_for('index'))
+    return render_template('add_review.html', place=place)
+
+@app.route('/api/v1/places/<string:place_id>/reviews', methods=['GET', 'POST'])
+@login_required
+def place_reviews(place_id):
+    if request.method == 'GET':
+        reviews = db_session.query(Review).filter_by(place_id=place_id).all()
+        return jsonify([{
+            'id': review.id,
+            'text': review.text,
+            'rating': review.rating,
+            'user': {
+                'first_name': review.user.first_name,
+                'last_name': review.user.last_name
+            }
+        } for review in reviews])
+    
+    elif request.method == 'POST':
+        data = request.get_json()
+        new_review = Review(
+            text=data['text'],
+            rating=data['rating'],
+            place_id=place_id,
+            user_id=session['user_id']
+        )
+        db_session.add(new_review)
+        db_session.commit()
+        return jsonify({'message': 'Review added successfully'})
+
+def add_review(place_id):
+    try:
+        data = request.get_json()
+        new_review = Review(
+            text=data['text'],
+            rating=data['rating'],
+            place_id=place_id,
+            user_id=session['user_id']
+        )
+        db_session.add(new_review)
+        db_session.commit()
+        return jsonify({'message': 'Review added successfully'}), 200
+    except Exception as e:
+        db_session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 # @app.route('/admin')
 # @login_required

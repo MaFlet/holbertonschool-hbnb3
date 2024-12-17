@@ -4,37 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Review</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+         /* General Styles */
+         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Header */
+        header nav {
+            background-color: #2e8b57;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+        }
+         /* Review Form Section */
+         #review-section {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #2e8b57;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #246b45;
+        }
+    </style>
 </head>
 <body>
     <header>
         <nav>
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="places.html" class="nav-link">Places</a>
+            <a href="/">Home</a>
+            <a href="/places" id="back-to-place">Back to Place</a>
         </nav>
     </header>
+    
     <main>
         <section id="review-section">
             <h2>Add a Review</h2>
-            <form id="review-form" action="/submit_review" method="POST">
+            <form id="review-form">
+                <div>
                 <!-- Field to identify the place being reviewed -->
-                <label for="place">Place:</label>
-                <input type="text" id="place" name="place" placeholder="Enter the name of the place" required>
-
-                <!-- Textarea for user review -->
-                <label for="review">Your Review:</label>
-                <textarea id="review" name="review" placeholder="Write your review here..." required></textarea>
+                <label for="review-text">Your Review:</label>
+                <textarea id="review-text" name="review-text"
+                    placeholder="Write your review here..." required></textarea>
+                </div>
 
                 <!-- Dropdown for rating -->
-                <label for="rating">Rating:</label>
-                <select id="rating" name="rating" required>
-                    <option value="" disabled selected>Select a rating</option>
-                    <option value="5">5 - Excellent</option>
-                    <option value="4">4 - Very Good</option>
-                    <option value="3">3 - Average</option>
-                    <option value="2">2 - Poor</option>
-                    <option value="1">1 - Terrible</option>
-                </select>
+                 <div>
+                    <label for="review-rating">Rating:</label>
+                    <select id="review-rating" name="review-rating" required>
+                        <option value="" disabled selected>Select a rating</option>
+                        <option value="5">5 - Excellent</option>
+                        <option value="4">4 - Very Good</option>
+                        <option value="3">3 - Average</option>
+                        <option value="2">2 - Poor</option>
+                        <option value="1">1 - Terrible</option>
+                    </select>
+                </div>
 
                 <!-- Submit button -->
                 <button type="submit">Submit Review</button>
@@ -44,6 +114,6 @@
     <footer>
         <p>&copy; 2024 HBNB. All rights reserved.</p>
     </footer>
-    <script src="scripts.js"></script>
+    <script src="/static/js/add_review.js"></script>
 </body>
 </html>

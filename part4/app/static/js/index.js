@@ -5,8 +5,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!placesList) return;
 
         try {
-            const response = await fetch('/api/v1/places');
+            const response = await fetch('/api/v1/places/');
+            if (!response.ok) {
+                throw new Error(`HTTP error! Response status: ${response,status} ${response.statusText}`);
+            }
             const places = await response.json();
+            if (!Array.isArray(places)) {
+                throw new Error('Invalid response format: expected an array of places');
+            }
             
             placesList.innerHTML = '<h2>Available Places</h2>';
 
@@ -45,7 +51,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const maxPrice = e.target.value;
             try {
                 const response = await fetch(`/api/v1/places?max_price=${maxPrice}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Response status: ${response.status} ${response.statusText}`)
+                }
                 const places = await response.json();
+                if (!Array.isArray(places)) {
+                    throw new Error('Invalid response format: expected an array of places');
+                }
                 const placesList = document.getElementById('places-list');
                 
                 placesList.innerHTML = '<h2>Available Places</h2>';
